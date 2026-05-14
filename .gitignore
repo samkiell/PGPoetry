@@ -1,0 +1,42 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# environment
+.env
+.env*.local
+.env.local
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev.log
+*.log
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# typescript
+*.tsbuildinfo
+
+# editor / tooling
+.vscode/*
+!.vscode/extensions.json
+.idea
+.continue
+.sixth
+
+# legacy build artifacts
+/images/uploads

@@ -1,0 +1,135 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  PGpoetry design tokens — ported from the v1 aesthetic:
+  serif display headings, warm paper background, signature poppy-red accent.
+*/
+@theme inline {
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-source-sans), system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* warm off-white "paper" */
+  --background: oklch(0.99 0.005 95);
+  --foreground: oklch(0.27 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.27 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.27 0.02 250);
+
+  /* signature poppy red (#e74c3c) */
+  --primary: oklch(0.63 0.224 27.3);
+  --primary-foreground: oklch(0.99 0.005 95);
+
+  --secondary: oklch(0.96 0.01 95);
+  --secondary-foreground: oklch(0.3 0.02 250);
+  --muted: oklch(0.96 0.01 95);
+  --muted-foreground: oklch(0.52 0.02 250);
+  --accent: oklch(0.95 0.02 60);
+  --accent-foreground: oklch(0.3 0.02 250);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.99 0.005 95);
+
+  --border: oklch(0.9 0.01 95);
+  --input: oklch(0.9 0.01 95);
+  --ring: oklch(0.63 0.224 27.3);
+}
+
+.dark {
+  /* deep slate night mode, matching v1 #181c24 family */
+  --background: oklch(0.21 0.02 255);
+  --foreground: oklch(0.95 0.01 95);
+  --card: oklch(0.25 0.02 255);
+  --card-foreground: oklch(0.95 0.01 95);
+  --popover: oklch(0.25 0.02 255);
+  --popover-foreground: oklch(0.95 0.01 95);
+
+  --primary: oklch(0.68 0.2 27.3);
+  --primary-foreground: oklch(0.18 0.02 255);
+
+  --secondary: oklch(0.29 0.02 255);
+  --secondary-foreground: oklch(0.95 0.01 95);
+  --muted: oklch(0.29 0.02 255);
+  --muted-foreground: oklch(0.7 0.02 255);
+  --accent: oklch(0.32 0.02 255);
+  --accent-foreground: oklch(0.95 0.01 95);
+  --destructive: oklch(0.62 0.2 27);
+  --destructive-foreground: oklch(0.95 0.01 95);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.68 0.2 27.3);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3, h4, .font-display {
+    @apply font-serif;
+  }
+}
+
+/* Preserve the line breaks and spacing that matter so much in poetry. */
+.poem-body {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Rendered poem HTML (from the Tiptap editor or normalised legacy text). */
+.poem-content p {
+  margin-bottom: 1.5rem;
+}
+.poem-content p:last-child {
+  margin-bottom: 0;
+}
+.poem-content blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  font-style: italic;
+}
+.poem-content h2,
+.poem-content h3 {
+  margin: 1.5rem 0 0.75rem;
+  font-weight: 600;
+}
+.poem-content em {
+  font-style: italic;
+}
+.poem-content strong {
+  font-weight: 700;
+}

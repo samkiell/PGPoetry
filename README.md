@@ -1,198 +1,124 @@
-# PGPoetry - Every verse, a priceless gift.
+# PGpoetry — _Every verse, a priceless gift._
 
-A minimalist, emotion-driven blog designed for publishing original written poems to the public.
+A minimalist, emotion-driven poetry platform. Readers browse, collect, and
+respond to poems; the author publishes and curates them from an admin studio.
 
-## 🌟 Features
+> **v2** — a full rebuild on Next.js. The original Express/vanilla-JS app lives
+> in `client/`, `server/`, and `admin/` for reference until the revamp is signed
+> off.
 
-### Public Site (Client Side)
-- **Browse Poems**: View all published poems with beautiful cards
-- **Search Functionality**: Search through poems by title, content, or tags
-- **Individual Poem View**: Read full poems with elegant typography
-- **Mobile-First Design**: Responsive design that works on all devices
-- **Minimalist UI**: Clean, poetry-focused design with serif fonts
+## ✨ Features
 
-### Admin Portal (Private)
-- **Secure Authentication**: JWT-based login system
-- **Create Poems**: Add new poems with title, content, tags, and featured status
-- **Edit Poems**: Update existing poems
-- **Delete Poems**: Remove poems from the collection
-- **Dashboard**: Manage all poems from a clean interface
+**For readers**
 
-## 🛠️ Technology Stack
+- Browse and search poems by title, line, or tag
+- Curated **collections** (series of poems)
+- **Accounts** — sign up with email/password or Google; profile with bio,
+  favorites, and comment history
+- **Engagement** — like, favorite, comment (guests can comment too), and share
+- Light / dark theme, RSS feed, per-poem social preview images
 
-- **Frontend**: HTML, CSS, Vanilla JavaScript
-- **Backend**: Node.js with Express
-- **Database**: MongoDB with Mongoose
-- **Authentication**: JWT tokens
-- **Security**: bcryptjs for password hashing, helmet for security headers
+**For the author (admin)**
 
-## 📁 Project Structure
+- Dashboard with library stats
+- **Rich poem editor** (Tiptap) with live preview, cover images, tags,
+  collections, drafts, and **scheduled publishing**
+- Collections manager
+- Analytics — most viewed and most liked poems
 
-```
-PGPoetry/
-├── client/                 # Public-facing site
-│   ├── index.html         # Homepage
-│   ├── poems.html         # Poems listing page
-│   ├── poem.html          # Individual poem view
-│   ├── css/
-│   │   └── style.css      # Main stylesheet
-│   └── js/
-│       ├── app.js         # Homepage functionality
-│       ├── poems.js       # Poems listing functionality
-│       └── poem.js        # Individual poem functionality
-│
-├── admin/                  # Admin portal
-│   ├── login.html         # Admin login page
-│   ├── dashboard.html     # Admin dashboard
-│   ├── css/
-│   │   └── admin.css      # Admin stylesheet
-│   └── js/
-│       ├── login.js       # Login functionality
-│       └── dashboard.js   # Dashboard functionality
-│
-├── server/                 # Node backend
-│   ├── models/
-│   │   └── Poem.js        # Poem Mongoose model
-│   ├── routes/
-│   │   ├── auth.js        # Authentication routes
-│   │   └── poems.js       # Poem CRUD routes
-│   ├── controllers/
-│   │   ├── authController.js  # Authentication logic
-│   │   └── poemController.js  # Poem CRUD logic
-│   ├── middleware/
-│   │   └── auth.js        # JWT authentication middleware
-│   ├── env.example        # Environment variables template
-│   └── server.js          # Main server file
-│
-├── package.json           # Node.js dependencies
-└── README.md             # This file
-```
+## 🛠️ Stack
 
-## 🚀 Getting Started
+| Layer    | Choice                                               |
+| -------- | ---------------------------------------------------- |
+| Framework | Next.js (App Router) + React + TypeScript           |
+| Styling  | Tailwind CSS v4 + shadcn/ui                          |
+| Database | MongoDB + Mongoose                                   |
+| Auth     | Auth.js v5 (Credentials + Google, MongoDB adapter)   |
+| Uploads  | Cloudinary                                           |
+| Editor   | Tiptap                                               |
+
+## 🚀 Getting started
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- MongoDB (local or cloud instance)
-- npm or yarn
+- Node.js 20.6+ (22 recommended)
+- A MongoDB database (Atlas or local)
+- _(optional)_ Cloudinary account for image uploads
+- _(optional)_ Google OAuth credentials for "Sign in with Google"
 
-### Installation
+### Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd PGPoetry
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp server/env.example server/.env
-   ```
-   
-   Edit `server/.env` with your configuration:
-   ```env
-   PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/pgpoetry
-   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-   ADMIN_USERNAME=admin
-   ADMIN_PASSWORD=admin123
-   NODE_ENV=development
-   ```
-
-4. **Start MongoDB**
-   - Local: Make sure MongoDB is running on your machine
-   - Cloud: Use MongoDB Atlas or another cloud provider
-
-5. **Start the server**
-   ```bash
-   npm start
-   # or for development with auto-restart:
-   npm run dev
-   ```
-
-6. **Access the application**
-   - Public site: http://localhost:3000
-   - Admin portal: http://localhost:3000/admin
-   - Default admin credentials: admin / admin123
-
-## 📚 API Endpoints
-
-### Public Endpoints
-- `GET /api/poems` - Get all poems
-- `GET /api/poems/:slug` - Get single poem by slug
-
-### Protected Endpoints (Admin Only)
-- `POST /api/auth/login` - Admin authentication
-- `POST /api/poems` - Create new poem
-- `PUT /api/poems/:id` - Update poem
-- `DELETE /api/poems/:id` - Delete poem
-
-## 🎨 Design Features
-
-- **Typography**: Playfair Display for headings, Source Sans Pro for body text
-- **Color Scheme**: Minimalist with red accent color (#e74c3c)
-- **Layout**: Grid-based responsive design
-- **Animations**: Smooth hover effects and transitions
-- **Mobile-First**: Optimized for mobile devices
-
-## 🔒 Security Features
-
-- JWT-based authentication for admin access
-- Password hashing with bcryptjs
-- Security headers with helmet
-- Rate limiting to prevent abuse
-- CORS configuration
-- Input validation and sanitization
-
-## 📱 Responsive Design
-
-The application is fully responsive and works on:
-- Desktop computers
-- Tablets
-- Mobile phones
-- All modern browsers
-
-## 🚀 Deployment
-
-### Local Development
 ```bash
+npm install
+cp .env.example .env.local   # then fill in the values
 npm run dev
 ```
 
-### Production
+Open <http://localhost:3000>.
+
+To populate a fresh database with a sample collection and poems:
+
 ```bash
-npm start
+npm run seed
 ```
 
-### Environment Variables for Production
-- Change `JWT_SECRET` to a strong, unique key
-- Update `ADMIN_USERNAME` and `ADMIN_PASSWORD`
-- Set `NODE_ENV=production`
-- Use a production MongoDB instance
+### Environment variables
 
-## 🤝 Contributing
+See [`.env.example`](.env.example) for the full list. The essentials:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+| Variable        | Purpose                                                        |
+| --------------- | -------------------------------------------------------------- |
+| `MONGODB_URI`   | MongoDB connection string                                      |
+| `AUTH_SECRET`   | Auth.js session secret — `npx auth secret` to generate         |
+| `ADMIN_EMAIL`   | The account with this email is granted the **admin** role      |
+| `AUTH_GOOGLE_*` | Optional — enables Google sign-in                              |
+| `CLOUDINARY_*`  | Optional — enables image uploads in the admin studio           |
+
+The admin role is assigned automatically to whoever signs up (or signs in via
+Google) with `ADMIN_EMAIL`.
+
+## 📜 Scripts
+
+| Command          | Description                              |
+| ---------------- | ---------------------------------------- |
+| `npm run dev`    | Start the dev server                     |
+| `npm run build`  | Production build                         |
+| `npm start`      | Run the production build                 |
+| `npm run lint`   | ESLint                                   |
+| `npm run typecheck` | Type-check without emitting           |
+| `npm run seed`   | Seed sample content (idempotent)         |
+
+## 🗂️ Project structure
+
+```
+src/
+├── app/
+│   ├── (public pages)        # home, poems, collections, poem detail
+│   ├── login, signup         # auth screens
+│   ├── profile/              # reader profile + favorites
+│   ├── admin/                # admin studio (poems, collections, analytics)
+│   ├── api/                  # auth + admin upload route handlers
+│   ├── actions/              # server actions (engagement, auth, admin, profile)
+│   └── rss.xml/              # RSS feed
+├── components/               # UI kit (shadcn) + feature components
+├── lib/                      # db, auth, data layer, utilities
+├── models/                   # Mongoose schemas
+└── types/                    # shared serializable types
+```
+
+## ⏰ Scheduled publishing
+
+Poems with status `scheduled` are promoted to `published` automatically the
+next time an admin loads the studio (`publishDuePoems`). For hands-off
+publishing, hit that logic from a cron job (e.g. a Vercel Cron calling a small
+route handler).
+
+## 📦 Deployment
+
+The app deploys cleanly to any Next.js host (Vercel recommended). Set the
+environment variables from `.env.example` in your host's dashboard. `.env*`
+files are git-ignored — never commit real secrets.
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
-## 🙏 Acknowledgments
-
-- Built with love for poetry enthusiasts
-- Designed for minimalism and readability
-- Inspired by the beauty of written words
-
----
-
-**PGPoetry** - Where emotions find their voice through words.
+MIT
