@@ -2100,8 +2100,24 @@ body.dark .auth-form input::placeholder {
 
 /* Poem signature styles */
 .poem-signature {
-    text-align: left;
+    text-align: left !important;
     font-style: italic;
     color: #7f8c8d;
+    margin-top: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+}
+
+/* Card metadata alignment fixes */
+.poem-meta .poem-date {
+    margin-top: 0 !important;
+    font-size: 0.9rem !important;
+}
+
+body.dark .poem-signature {
+    color: #b2bec3;
 }
 

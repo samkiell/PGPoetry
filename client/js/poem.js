@@ -162,7 +162,23 @@ async function generatePoemCanvas(poem, opts = {}) {
     const maxTitleWidth = Math.max(...titleLines.map(line => ctx.measureText(line).width));
 
     ctx.font = `${bodyFontSize}px ${bodyFontFamily}`;
-    const paragraphs = (poem.content || '').trim().split(/\n\s*\n/);
+    
+    // Strip backend/custom signature dynamically to avoid rendering HTML tags or double signature on canvas
+    let canvasPoemText = poem.content || '';
+    const strongSig = '\n\n<strong>©PGpoetry ✍</strong>';
+    if (canvasPoemText.endsWith(strongSig)) {
+        canvasPoemText = canvasPoemText.slice(0, -strongSig.length);
+    }
+    const plainSig = '\n\n©PGpoetry ✍';
+    if (canvasPoemText.endsWith(plainSig)) {
+        canvasPoemText = canvasPoemText.slice(0, -plainSig.length);
+    }
+    const inlineSig = '©PGpoetry ✍';
+    if (canvasPoemText.endsWith(inlineSig)) {
+        canvasPoemText = canvasPoemText.slice(0, -inlineSig.length).trim();
+    }
+
+    const paragraphs = canvasPoemText.trim().split(/\n\s*\n/);
     let maxContentWidth = 0;
     paragraphs.forEach((p) => {
         const linesInParagraph = p.split('\n').map(line => line.trim());
@@ -467,10 +483,26 @@ async function loadPoem() {
     try { window.__CURRENT_POEM__ = poem; } catch (e) { /* ignore in restricted contexts */ }
         
         const tags = poem.tags ? poem.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
-        const { words, minutes } = calculateReadingStats(poem.content);
+
+        // Strip backend/custom-appended signature dynamically to prevent duplicates and wrong stats
+        let poemText = poem.content || '';
+        const strongSignature = '\n\n<strong>©PGpoetry ✍</strong>';
+        if (poemText.endsWith(strongSignature)) {
+            poemText = poemText.slice(0, -strongSignature.length);
+        }
+        const plainSignature = '\n\n©PGpoetry ✍';
+        if (poemText.endsWith(plainSignature)) {
+            poemText = poemText.slice(0, -plainSignature.length);
+        }
+        const inlineSignature = '©PGpoetry ✍';
+        if (poemText.endsWith(inlineSignature)) {
+            poemText = poemText.slice(0, -inlineSignature.length).trim();
+        }
+
+        const { words, minutes } = calculateReadingStats(poemText);
 
         // Convert plain-text poem content into paragraphs preserving line breaks
-        let paragraphs = (poem.content || '').trim().split(/\n\s*\n/).map(p => {
+        let paragraphs = poemText.trim().split(/\n\s*\n/).map(p => {
             // replace single newlines within a paragraph with <br>
             const inner = p.replace(/\n/g, '<br>');
             return `<p>${inner}</p>`;
