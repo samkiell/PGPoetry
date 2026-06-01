@@ -27,14 +27,22 @@ function roleForEmail(email: string): UserRole {
     : "reader";
 }
 
-/** Validates email/password for the Credentials provider. */
+/** Validates email/username and password for the Credentials provider. */
 export async function verifyCredentials(
-  email: string,
+  usernameOrEmail: string,
   password: string,
 ): Promise<SessionUser | null> {
   await connectDB();
 
-  const user = await User.findOne({ email: email.toLowerCase() })
+  const identifier = usernameOrEmail.trim();
+  const escaped = identifier.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+  const user = await User.findOne({
+    $or: [
+      { email: identifier.toLowerCase() },
+      { username: { $regex: new RegExp(`^${escaped}$`, "i") } },
+    ],
+  })
     .select("+password")
     .lean();
 

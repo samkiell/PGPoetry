@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GoogleButton } from "@/components/auth/google-button";
+import { Eye, EyeOff } from "lucide-react";
 
 export function LoginForm({
   callbackUrl,
@@ -18,6 +19,7 @@ export function LoginForm({
 }) {
   const router = useRouter();
   const [pending, setPending] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,7 +27,7 @@ export function LoginForm({
     setPending(true);
 
     const res = await signIn("credentials", {
-      email: String(form.get("email") ?? ""),
+      usernameOrEmail: String(form.get("usernameOrEmail") ?? ""),
       password: String(form.get("password") ?? ""),
       redirect: false,
     });
@@ -33,7 +35,7 @@ export function LoginForm({
     setPending(false);
 
     if (!res || res.error) {
-      toast.error("Incorrect email or password.");
+      toast.error("Incorrect username, email, or password.");
       return;
     }
     router.push(callbackUrl);
@@ -55,26 +57,41 @@ export function LoginForm({
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="usernameOrEmail">Username or Email</Label>
           <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
+            id="usernameOrEmail"
+            name="usernameOrEmail"
+            type="text"
+            autoComplete="username"
             required
-            placeholder="you@example.com"
+            placeholder="Username or you@example.com"
           />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            placeholder="••••••••"
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              required
+              placeholder="••••••••"
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Eye className="h-4 w-4" aria-hidden="true" />
+              )}
+            </button>
+          </div>
         </div>
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Signing in…" : "Log in"}

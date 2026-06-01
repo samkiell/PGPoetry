@@ -33,18 +33,18 @@ export const authConfig = {
     ...googleProvider,
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
+        usernameOrEmail: { label: "Username or Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         // Lazily pull in DB code so this module stays edge-compatible.
         const { verifyCredentials } = await import("@/lib/auth-credentials");
-        const email =
-          typeof credentials?.email === "string" ? credentials.email : "";
+        const usernameOrEmail =
+          typeof credentials?.usernameOrEmail === "string" ? credentials.usernameOrEmail : "";
         const password =
           typeof credentials?.password === "string" ? credentials.password : "";
-        if (!email || !password) return null;
-        return verifyCredentials(email, password);
+        if (!usernameOrEmail || !password) return null;
+        return verifyCredentials(usernameOrEmail, password);
       },
     }),
   ],
