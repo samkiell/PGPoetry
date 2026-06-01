@@ -1,6 +1,17 @@
 import mongoose from "mongoose";
 import { env } from "@/lib/env";
 
+// Pre-register schemas to prevent lazy-load population errors
+import "@/models/Poem";
+import "@/models/Collection";
+import "@/models/Comment";
+import "@/models/Like";
+import "@/models/Favorite";
+import "@/models/User";
+
+// Disable strict schema population checks globally
+mongoose.set("strictPopulate", false);
+
 /**
  * Mongoose connection helper.
  *
@@ -48,3 +59,4 @@ export async function connectDB(): Promise<typeof mongoose> {
 
   return cache.conn;
 }
+

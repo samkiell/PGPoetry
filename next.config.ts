@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+  },
   async redirects() {
     return [
       // Legacy single-poem URL shape from the v1 site
@@ -17,3 +21,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
