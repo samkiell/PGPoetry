@@ -21,7 +21,7 @@ export interface SessionUser {
 }
 
 /** The email in ADMIN_EMAIL is always promoted to the admin role. */
-function roleForEmail(email: string): UserRole {
+export function roleForEmail(email: string): UserRole {
   return env.ADMIN_EMAIL && email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase()
     ? "admin"
     : "reader";
