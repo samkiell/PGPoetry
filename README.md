@@ -3,10 +3,6 @@
 A minimalist, emotion-driven poetry platform. Readers browse, collect, and
 respond to poems; the author publishes and curates them from an admin studio.
 
-> **v2** — a full rebuild on Next.js. The original Express/vanilla-JS app lives
-> in `client/`, `server/`, and `admin/` for reference until the revamp is signed
-> off.
-
 ## ✨ Features
 
 **For readers**
