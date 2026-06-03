@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [value, setValue] = React.useState(query ?? "");
+  const [tagsExpanded, setTagsExpanded] = React.useState(false);
 
   // Keep the input in sync if the URL changes from elsewhere (e.g. back button).
   React.useEffect(() => setValue(query ?? ""), [query]);
@@ -71,33 +72,50 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
       </form>
 
       {tags.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => commit({ tag: null })}>
-            <Badge
-              variant={activeTag ? "secondary" : "default"}
-              className="cursor-pointer"
-            >
-              All
-            </Badge>
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => setTagsExpanded(!tagsExpanded)}
+            className="flex items-center gap-2 text-sm font-medium hover:opacity-80"
+          >
+            <ChevronDown
+              className={cn(
+                "size-4 transition-transform",
+                tagsExpanded && "rotate-180"
+              )}
+            />
+            Browse tags
           </button>
-          {tags.map(({ tag, count }) => {
-            const active = activeTag === tag;
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => commit({ tag: active ? null : tag })}
-              >
+          {tagsExpanded && (
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => commit({ tag: null })}>
                 <Badge
-                  variant={active ? "default" : "secondary"}
-                  className={cn("cursor-pointer", active && "ring-1 ring-ring")}
+                  variant={activeTag ? "secondary" : "default"}
+                  className="cursor-pointer"
                 >
-                  {tag}
-                  <span className="opacity-60">{count}</span>
+                  All
                 </Badge>
               </button>
-            );
-          })}
+              {tags.map(({ tag, count }) => {
+                const active = activeTag === tag;
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => commit({ tag: active ? null : tag })}
+                  >
+                    <Badge
+                      variant={active ? "default" : "secondary"}
+                      className={cn("cursor-pointer", active && "ring-1 ring-ring")}
+                    >
+                      {tag}
+                      <span className="opacity-60">{count}</span>
+                    </Badge>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       ) : null}
 
