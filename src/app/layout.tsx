@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Sans_3, Cormorant_Garamond } from "next/font/google";
+import { Playfair_Display, Source_Sans_3, Cormorant_Garamond, Cormorant } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -26,6 +26,13 @@ const cormorant = Cormorant_Garamond({
   weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
+  display: "swap",
+});
+
+const cormorantLight = Cormorant({
+  subsets: ["latin"],
+  weight: ["300"],
+  variable: "--font-cormorant-gould",
   display: "swap",
 });
 
@@ -57,7 +64,7 @@ export default function RootLayout({
       {/* suppressHydrationWarning: browser extensions (wallets, etc.) inject
           <script>/attributes into <body> before React hydrates. */}
       <body
-        className={`${playfair.variable} ${sourceSans.variable} ${cormorant.variable}`}
+        className={`${playfair.variable} ${sourceSans.variable} ${cormorant.variable} ${cormorantLight.variable}`}
         suppressHydrationWarning
       >
         <ThemeProvider

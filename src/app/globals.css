@@ -113,10 +113,11 @@
 
 /* Rendered poem HTML (from the Tiptap editor or normalised legacy text). */
 .poem-content {
-  font-family: var(--font-cormorant), var(--font-serif);
+  font-family: var(--font-cormorant-gould), var(--font-serif);
   font-size: 1.25rem;
   line-height: 1.85;
   letter-spacing: 0.01em;
+  font-weight: 300;
 }
 @media (min-width: 640px) {
   .poem-content {
