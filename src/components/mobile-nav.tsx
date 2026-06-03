@@ -2,12 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { NavLinks } from "@/components/nav-links";
@@ -28,24 +29,40 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           <Menu className="size-5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="top-0 left-0 max-w-full translate-x-0 translate-y-0 rounded-none border-0 sm:max-w-sm">
-        <DialogTitle className="text-primary">PGpoetry</DialogTitle>
-        <NavLinks orientation="vertical" onNavigate={close} />
-        <div className="mt-4 flex flex-col gap-2 border-t pt-4">
+      <DialogContent className="top-0 left-0 max-w-full translate-x-0 translate-y-0 rounded-none border-0 sm:max-w-sm h-screen flex flex-col gap-0 p-0 data-[state=open]:slide-in-from-left-0 data-[state=closed]:slide-out-to-left-0">
+        <div className="bg-card border-b px-6 py-6 flex items-center justify-between">
+
+          <DialogTitle className="text-primary font-serif text-2xl font-semibold">
+            PGpoetry
+          </DialogTitle>
+          <DialogClose asChild>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <X className="size-5" />
+            </Button>
+          </DialogClose>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <nav className="flex flex-col px-4 py-6">
+            <NavLinks orientation="vertical" onNavigate={close} />
+          </nav>
+        </div>
+
+        <div className="border-t bg-card/50 px-6 py-6 flex flex-col gap-3">
           {isLoggedIn ? (
             <Link
               href="/profile"
               onClick={close}
-              className="px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground"
+              className="px-4 py-3 rounded-lg text-base font-medium text-primary hover:bg-primary/10 transition-colors"
             >
               Your profile
             </Link>
           ) : (
             <>
-              <Button asChild variant="outline" onClick={close}>
+              <Button asChild variant="outline" onClick={close} className="rounded-lg">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild onClick={close}>
+              <Button asChild onClick={close} className="rounded-lg">
                 <Link href="/signup">Sign up</Link>
               </Button>
             </>
