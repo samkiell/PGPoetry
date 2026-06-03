@@ -1,5 +1,13 @@
 import { MongoClient } from "mongodb";
+import dns from "dns";
 import { env } from "@/lib/env";
+
+// Set default DNS servers to avoid querySrv ETIMEOUT issues on some local networks
+try {
+  dns.setServers(["1.1.1.1", "8.8.8.8"]);
+} catch (e) {
+  console.warn("[mongoClient] Failed to set public DNS servers:", e);
+}
 
 /**
  * Native MongoDB driver client — used only by the Auth.js MongoDB adapter.

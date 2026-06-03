@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
+import dns from "dns";
 import { env } from "@/lib/env";
+
+// Set default DNS servers to avoid querySrv ETIMEOUT issues on some local networks
+try {
+  dns.setServers(["1.1.1.1", "8.8.8.8"]);
+} catch (e) {
+  console.warn("[db] Failed to set public DNS servers:", e);
+}
 
 // Pre-register schemas to prevent lazy-load population errors
 import "@/models/Poem";
