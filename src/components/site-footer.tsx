@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Rss } from "lucide-react";
 import { env } from "@/lib/env";
 
 const SOCIALS = [
@@ -31,14 +30,6 @@ export function SiteFooter() {
             <li>
               <Link href="/collections" className="hover:text-foreground">
                 Collections
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/rss.xml"
-                className="hover:text-foreground inline-flex items-center gap-1"
-              >
-                <Rss className="size-3.5" /> RSS feed
               </Link>
             </li>
           </ul>
