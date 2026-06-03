@@ -80,76 +80,100 @@ export default async function PoemPage({ params }: { params: Params }) {
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       {poem.collection ? (
-        <Link
-          href={`/collections/${poem.collection.slug}`}
-          className="text-primary text-xs font-medium uppercase tracking-[0.2em] hover:underline"
-        >
-          {poem.collection.title}
-        </Link>
+        <div className="mb-4 text-center">
+          <Link
+            href={`/collections/${poem.collection.slug}`}
+            className="text-primary text-xs font-medium uppercase tracking-[0.2em] hover:underline"
+          >
+            {poem.collection.title}
+          </Link>
+        </div>
       ) : null}
 
-      <h1 className="font-serif mt-3 text-3xl font-semibold leading-tight sm:text-5xl">
-        {poem.title}
-      </h1>
+      <div className="bg-card text-card-foreground border-border/60 relative overflow-hidden rounded-2xl border shadow-md transition-all duration-300 hover:shadow-lg">
+        {poem.coverImage ? (
+          <div className="relative aspect-video w-full overflow-hidden border-b">
+            <Image
+              src={poem.coverImage}
+              alt={poem.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="object-cover"
+              priority
+            />
+          </div>
+        ) : null}
 
-      <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-4 text-sm">
-        {poem.publishedAt ? <span>{formatDate(poem.publishedAt)}</span> : null}
-        <span className="inline-flex items-center gap-1">
-          <Clock className="size-3.5" /> {poem.readingMinutes} min read
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <Heart className="size-3.5" /> {poem.likes}
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <Eye className="size-3.5" /> {poem.views}
-        </span>
+        <div className="px-6 py-10 sm:px-12 sm:py-16">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="font-serif text-3xl font-semibold leading-tight sm:text-5xl">
+              {poem.title}
+            </h1>
+
+            <div className="text-muted-foreground mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs uppercase tracking-wider">
+              {poem.publishedAt ? <span>{formatDate(poem.publishedAt)}</span> : null}
+              <span className="h-3 w-px bg-border hidden sm:block" />
+              <span className="inline-flex items-center gap-1">
+                <Clock className="size-3" /> {poem.readingMinutes} min read
+              </span>
+              <span className="h-3 w-px bg-border hidden sm:block" />
+              <span className="inline-flex items-center gap-1">
+                <Heart className="size-3" /> {poem.likes} likes
+              </span>
+              <span className="h-3 w-px bg-border hidden sm:block" />
+              <span className="inline-flex items-center gap-1">
+                <Eye className="size-3" /> {poem.views} views
+              </span>
+            </div>
+
+            {/* Elegant Divider Ornament */}
+            <div className="my-8 flex items-center justify-center gap-4 w-full max-w-[200px]">
+              <span className="h-px bg-border flex-1" />
+              <span className="text-primary text-lg leading-none">❦</span>
+              <span className="h-px bg-border flex-1" />
+            </div>
+          </div>
+
+          {/* The poem itself — HTML from the editor, or normalised legacy text. */}
+          <div className="mx-auto flex justify-center w-full my-6">
+            <div
+              className="poem-content w-fit max-w-full text-left font-serif leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: poemContentToHtml(poem.content) }}
+            />
+          </div>
+
+          <div className="flex flex-col items-center justify-center mt-12 border-t pt-8">
+            <p className="text-muted-foreground font-serif italic text-base">
+              ©PGpoetry ✍
+            </p>
+          </div>
+        </div>
       </div>
 
-      {poem.coverImage ? (
-        <div className="relative mt-8 aspect-video overflow-hidden rounded-xl">
-          <Image
-            src={poem.coverImage}
-            alt={poem.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 768px"
-            className="object-cover"
-            priority
+      <div className="mt-8 flex flex-col gap-6">
+        {poem.tags.length > 0 ? (
+          <div className="flex flex-wrap gap-2 justify-center">
+            {poem.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" asChild>
+                <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+              </Badge>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center justify-center gap-3 border-t pt-6">
+          <LikeButton
+            poemId={poem.id}
+            initialLiked={engagement.liked}
+            initialCount={engagement.likeCount}
           />
+          <FavoriteButton
+            poemId={poem.id}
+            initialFavorited={engagement.favorited}
+            isLoggedIn={Boolean(viewer)}
+          />
+          <ShareButton title={poem.title} url={shareUrl} />
         </div>
-      ) : null}
-
-      {/* The poem itself — HTML from the editor, or normalised legacy text. */}
-      <div
-        className="poem-content font-serif mt-10 text-lg leading-relaxed sm:text-xl"
-        dangerouslySetInnerHTML={{ __html: poemContentToHtml(poem.content) }}
-      />
-
-      <p className="text-muted-foreground mt-8 font-serif text-base">
-        ©PGpoetry ✍
-      </p>
-
-      {poem.tags.length > 0 ? (
-        <div className="mt-8 flex flex-wrap gap-2 border-t pt-6">
-          {poem.tags.map((tag) => (
-            <Badge key={tag} variant="secondary" asChild>
-              <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
-            </Badge>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="mt-8 flex flex-wrap items-center gap-3 border-t pt-6">
-        <LikeButton
-          poemId={poem.id}
-          initialLiked={engagement.liked}
-          initialCount={engagement.likeCount}
-        />
-        <FavoriteButton
-          poemId={poem.id}
-          initialFavorited={engagement.favorited}
-          isLoggedIn={Boolean(viewer)}
-        />
-        <ShareButton title={poem.title} url={shareUrl} />
       </div>
 
       <CommentSection

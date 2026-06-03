@@ -10,6 +10,7 @@
 @theme inline {
   --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-source-sans), system-ui, sans-serif;
+  --font-artistic: var(--font-cormorant), Georgia, "Times New Roman", serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -111,8 +112,19 @@
 }
 
 /* Rendered poem HTML (from the Tiptap editor or normalised legacy text). */
+.poem-content {
+  font-family: var(--font-cormorant), var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+}
+@media (min-width: 640px) {
+  .poem-content {
+    font-size: 1.35rem;
+  }
+}
 .poem-content p {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 .poem-content p:last-child {
   margin-bottom: 0;
