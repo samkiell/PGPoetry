@@ -55,7 +55,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs sm:px-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-row items-center justify-between gap-2 px-4 py-6 text-xs sm:px-6">
           <p>
             &copy; {new Date().getFullYear()} {env.SITE_NAME}. All rights reserved.
           </p>
