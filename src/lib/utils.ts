@@ -44,6 +44,25 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
+function decodeHtmlEntities(html: string): string {
+  const textarea = typeof document !== 'undefined'
+    ? document.createElement('textarea')
+    : null;
+  if (textarea) {
+    textarea.innerHTML = html;
+    return textarea.value;
+  }
+  return html
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
 /**
  * Poems may be stored either as Tiptap HTML (new editor) or as plain text
  * (poems carried over from v1). This normalises both to safe display HTML,
@@ -52,7 +71,7 @@ function escapeHtml(value: string): string {
 export function poemContentToHtml(content: string): string {
   const trimmed = content.trim();
   const looksLikeHtml = /^<(p|h[1-6]|ul|ol|blockquote|div|br)\b/i.test(trimmed);
-  if (looksLikeHtml) return trimmed;
+  if (looksLikeHtml) return decodeHtmlEntities(trimmed);
 
   return trimmed
     .split(/\n{2,}/)
