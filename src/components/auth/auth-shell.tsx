@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Feather } from "lucide-react";
+import Image from "next/image";
 
 export function AuthShell({
   title,
@@ -15,9 +15,14 @@ export function AuthShell({
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-md flex-col justify-center px-4 py-12">
       <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-        <span className="bg-primary text-primary-foreground grid size-10 place-items-center rounded-lg">
-          <Feather className="size-5" />
-        </span>
+        <div className="relative size-10 overflow-hidden rounded-lg border bg-muted">
+          <Image
+            src="/images/Favicon_PGPPen.png"
+            alt="PGpoetry Logo"
+            fill
+            className="object-cover"
+          />
+        </div>
         <span className="font-serif text-xl font-semibold">PGpoetry</span>
       </Link>
 

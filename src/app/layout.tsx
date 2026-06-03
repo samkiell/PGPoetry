@@ -33,6 +33,9 @@ export const metadata: Metadata = {
     siteName: env.SITE_NAME,
     type: "website",
   },
+  icons: {
+    icon: "/images/Favicon_PGPPen.png",
+  },
   alternates: {
     types: { "application/rss+xml": "/rss.xml" },
   },

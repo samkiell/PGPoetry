@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Feather } from "lucide-react";
+import Image from "next/image";
 import { getCurrentUser } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -17,9 +17,15 @@ export async function SiteHeader() {
         <MobileNav isLoggedIn={Boolean(user)} />
 
         <Link href="/" className="flex items-center gap-2">
-          <span className="bg-primary text-primary-foreground grid size-9 place-items-center rounded-lg">
-            <Feather className="size-5" />
-          </span>
+          <div className="relative size-9 overflow-hidden rounded-lg border bg-muted">
+            <Image
+              src="/images/Favicon_PGPPen.png"
+              alt="PGpoetry Logo"
+              fill
+              priority
+              className="object-cover"
+            />
+          </div>
           <span className="flex flex-col leading-none">
             <span className="font-serif text-lg font-semibold">
               {env.SITE_NAME}
