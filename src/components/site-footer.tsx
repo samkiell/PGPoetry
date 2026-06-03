@@ -11,7 +11,7 @@ const SOCIALS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t">
+    <footer data-site-footer className="border-t">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
           <p className="font-serif text-xl font-semibold">{env.SITE_NAME}</p>

@@ -12,7 +12,10 @@ export async function SiteHeader() {
   const user = await getCurrentUser();
 
   return (
-    <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
+    <header
+      data-site-header
+      className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md"
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
         <MobileNav isLoggedIn={Boolean(user)} />
 
