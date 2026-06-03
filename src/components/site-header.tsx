@@ -20,7 +20,7 @@ export async function SiteHeader() {
         <MobileNav isLoggedIn={Boolean(user)} />
 
         <Link href="/" className="flex items-center gap-2">
-          <div className="relative size-9">
+          <div className="relative size-14">
             <Image
               src="/images/pg_logo.png"
               alt="PGpoetry Logo"
