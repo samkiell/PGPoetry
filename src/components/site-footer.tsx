@@ -77,7 +77,7 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="hover:text-foreground"
             >
-              SAMKIEL.DEV
+              SAMKIEL
             </a>
           </p>
         </div>

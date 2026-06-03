@@ -14,6 +14,7 @@ export default async function ProfileLayout({
       <nav className="mb-8 flex gap-1 border-b">
         <ProfileTab href="/profile" label="Overview" />
         <ProfileTab href="/profile/favorites" label="Favorites" />
+        <ProfileTab href="/profile/settings" label="Settings" />
       </nav>
       {children}
     </div>
