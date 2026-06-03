@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Library,
   ExternalLink,
+  Users,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/session";
 import { publishDuePoems } from "@/lib/data/admin";
@@ -13,6 +14,7 @@ const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/poems", label: "Poems", icon: FileText },
   { href: "/admin/collections", label: "Collections", icon: Library },
+  { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];
 

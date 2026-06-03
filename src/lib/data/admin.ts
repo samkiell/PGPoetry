@@ -1,6 +1,7 @@
 import "server-only";
 import { connectDB } from "@/lib/db";
 import { Poem, type PoemDoc, type PoemStatus } from "@/models/Poem";
+import { User, type UserRole } from "@/models/User";
 import { Comment } from "@/models/Comment";
 import { Like } from "@/models/Like";
 
@@ -170,4 +171,56 @@ export async function publishDuePoems(): Promise<number> {
     { $set: { status: "published", publishedAt: now } },
   );
   return result.modifiedCount ?? 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Users — admin management                                                  */
+/* -------------------------------------------------------------------------- */
+
+export interface AdminUserRow {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  role: UserRole;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getAllUsers(): Promise<AdminUserRow[]> {
+  await connectDB();
+  const users = await User.find()
+    .select("name username email role createdAt updatedAt")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return users.map((user) => ({
+    id: String(user._id),
+    name: user.name,
+    username: user.username || "",
+    email: user.email,
+    role: user.role,
+    createdAt: new Date(user.createdAt).toISOString(),
+    updatedAt: new Date(user.updatedAt).toISOString(),
+  }));
+}
+
+export async function updateUserRole(
+  userId: string,
+  role: UserRole,
+): Promise<boolean> {
+  await connectDB();
+  const result = await User.updateOne({ _id: userId }, { role });
+  return result.modifiedCount > 0;
+}
+
+export async function deleteUser(userId: string): Promise<boolean> {
+  await connectDB();
+  // Delete user and all their related data
+  await Promise.all([
+    User.deleteOne({ _id: userId }),
+    Comment.deleteMany({ author: userId }),
+    Like.deleteMany({ user: userId }),
+  ]);
+  return true;
 }

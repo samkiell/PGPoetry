@@ -258,3 +258,61 @@ function isDuplicateKey(err: unknown): boolean {
     (err as { code: unknown }).code === 11000
   );
 }
+
+/* ------------------------------- Users ----------------------------------- */
+
+import { User, type UserRole } from "@/models/User";
+
+export async function changeUserRole(
+  userId: string,
+  role: UserRole,
+): Promise<Result> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+
+  const parsed = objectId.safeParse(userId);
+  if (!parsed.success) return { ok: false, error: "Invalid user ID." };
+
+  const validRoles = ["reader", "writer", "admin"] as const;
+  if (!validRoles.includes(role)) {
+    return { ok: false, error: "Invalid role." };
+  }
+
+  await connectDB();
+  const user = await User.findById(userId);
+  if (!user) return { ok: false, error: "User not found." };
+
+  user.role = role;
+  await user.save();
+
+  revalidatePath("/admin/users");
+  return { ok: true };
+}
+
+export async function removeUser(userId: string): Promise<Result> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+
+  const parsed = objectId.safeParse(userId);
+  if (!parsed.success) return { ok: false, error: "Invalid user ID." };
+
+  const currentUser = await getCurrentUser();
+  if (currentUser?.id === userId) {
+    return { ok: false, error: "You cannot delete your own account." };
+  }
+
+  await connectDB();
+  const user = await User.findById(userId);
+  if (!user) return { ok: false, error: "User not found." };
+
+  // Delete user and all their related data
+  await Promise.all([
+    User.deleteOne({ _id: userId }),
+    Comment.deleteMany({ author: userId }),
+    Like.deleteMany({ user: userId }),
+    Favorite.deleteMany({ user: userId }),
+  ]);
+
+  revalidatePath("/admin/users");
+  return { ok: true };
+}
