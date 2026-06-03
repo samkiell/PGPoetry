@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/session";
 import { env } from "@/lib/env";
 
 const SOCIALS = [
@@ -8,7 +9,9 @@ const SOCIALS = [
   { label: "YouTube", href: "https://youtube.com/" },
 ];
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const user = await getCurrentUser();
+
   return (
     <footer data-site-footer className="border-t">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 grid-cols-2 sm:grid-cols-3">
@@ -36,8 +39,30 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="text-xs sm:text-sm font-semibold">Connect</p>
+          <p className="text-xs sm:text-sm font-semibold">
+            {user ? "Account" : "Get started"}
+          </p>
           <ul className="text-muted-foreground mt-3 space-y-2 text-xs sm:text-sm">
+            {user ? (
+              <li>
+                <Link href="/profile" className="hover:text-foreground">
+                  Your profile
+                </Link>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <Link href="/login" className="hover:text-foreground">
+                    Sign in
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/signup" className="hover:text-foreground">
+                    Sign up
+                  </Link>
+                </li>
+              </>
+            )}
             {SOCIALS.map((s) => (
               <li key={s.label}>
                 <a
