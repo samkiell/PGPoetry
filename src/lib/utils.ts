@@ -13,6 +13,24 @@ export function readingTime(text: string): number {
   return Math.max(1, Math.round(words / WPM));
 }
 
+export function formatReadingTime(text: string): string {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const totalSeconds = Math.max(10, Math.round((words / WPM) * 60));
+
+  if (totalSeconds < 60) {
+    return `${totalSeconds} sec`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (seconds === 0) {
+    return `${minutes} min`;
+  }
+
+  return `${minutes} min ${seconds} sec`;
+}
+
 export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }

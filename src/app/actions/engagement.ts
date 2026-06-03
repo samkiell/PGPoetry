@@ -70,7 +70,7 @@ export async function toggleFavorite(
   if (!parsed.success) return { ok: false, error: "Invalid poem." };
 
   const user = await getCurrentUser();
-  if (!user) {
+  if (!user || !user.id) {
     return { ok: false, error: "Sign in to save poems to your favorites." };
   }
 
@@ -85,7 +85,16 @@ export async function toggleFavorite(
     return { ok: true, favorited: false };
   }
 
-  await Favorite.create({ user: user.id, poem: poemId });
+  try {
+    await Favorite.create({ user: user.id, poem: poemId });
+  } catch (error: unknown) {
+    // Handle duplicate key error gracefully
+    if (error instanceof Error && error.message.includes("E11000")) {
+      return { ok: true, favorited: true };
+    }
+    throw error;
+  }
+
   revalidatePath("/profile/favorites");
   return { ok: true, favorited: true };
 }

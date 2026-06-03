@@ -56,7 +56,7 @@ export function PoemCard({ poem }: { poem: PoemListItem }) {
 
       <CardFooter className="text-muted-foreground gap-4 border-t py-3 text-xs">
         <span className="inline-flex items-center gap-1">
-          <Clock className="size-3.5" /> {poem.readingMinutes} min
+          <Clock className="size-3.5" /> {poem.readingTime}
         </span>
         <span className="inline-flex items-center gap-1">
           <Heart className="size-3.5" /> {poem.likes}

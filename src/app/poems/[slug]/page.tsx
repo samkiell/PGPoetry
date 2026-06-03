@@ -103,7 +103,7 @@ export default async function PoemPage({ params }: { params: Params }) {
           {poem.publishedAt ? <span>{formatDate(poem.publishedAt)}</span> : null}
           <span>
             <Clock className="mr-1 inline size-3 align-[-2px]" />
-            {poem.readingMinutes} min read
+            {poem.readingTime} read
           </span>
           <span className="reading-hide">
             <Heart className="mr-1 inline size-3 align-[-2px]" />

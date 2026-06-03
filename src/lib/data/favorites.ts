@@ -1,7 +1,7 @@
 import "server-only";
 import { connectDB } from "@/lib/db";
 import { Favorite } from "@/models/Favorite";
-import { excerpt, readingTime } from "@/lib/utils";
+import { excerpt, formatReadingTime } from "@/lib/utils";
 import type { PoemDoc } from "@/models/Poem";
 import type { PoemListItem } from "@/types/content";
 
@@ -43,7 +43,7 @@ export async function getUserFavorites(
         coverImage: poem.coverImage ?? "",
         likes: poem.likes ?? 0,
         views: poem.views ?? 0,
-        readingMinutes: readingTime(poem.content),
+        readingTime: formatReadingTime(poem.content),
         publishedAt: poem.publishedAt
           ? new Date(poem.publishedAt).toISOString()
           : null,

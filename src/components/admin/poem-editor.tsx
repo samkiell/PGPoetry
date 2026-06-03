@@ -22,7 +22,7 @@ import { createPoem, updatePoem, type PoemInput } from "@/app/actions/admin";
 import {
   htmlToPlainText,
   poemContentToHtml,
-  readingTime,
+  formatReadingTime,
   wordCount,
 } from "@/lib/utils";
 import type { PoemEditData } from "@/lib/data/admin";
@@ -154,8 +154,7 @@ export function PoemEditor({
         )}
 
         <p className="text-muted-foreground text-xs">
-          {words} {words === 1 ? "word" : "words"} · {readingTime(plain)} min
-          read
+          {words} {words === 1 ? "word" : "words"} · {formatReadingTime(content)}
         </p>
       </div>
 

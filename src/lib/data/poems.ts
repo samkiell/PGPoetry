@@ -6,9 +6,9 @@ import { Collection } from "@/models/Collection";
 import {
   excerpt,
   htmlToPlainText,
-  readingTime,
   stripSignature,
   wordCount,
+  formatReadingTime,
 } from "@/lib/utils";
 import type {
   PaginatedPoems,
@@ -46,7 +46,7 @@ function toListItem(doc: LeanPoem): PoemListItem {
     coverImage: doc.coverImage ?? "",
     likes: doc.likes ?? 0,
     views: doc.views ?? 0,
-    readingMinutes: readingTime(plain),
+    readingTime: formatReadingTime(doc.content),
     publishedAt: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
     collection: populatedCollection(doc.collectionId),
   };
@@ -68,7 +68,7 @@ function toDetail(doc: LeanPoem): PoemDetail {
     likes: doc.likes ?? 0,
     views: doc.views ?? 0,
     wordCount: wordCount(plain),
-    readingMinutes: readingTime(plain),
+    readingTime: formatReadingTime(content),
     publishedAt: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
     createdAt: new Date(doc.createdAt).toISOString(),
     collection: populatedCollection(doc.collectionId),

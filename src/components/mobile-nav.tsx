@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -45,13 +46,26 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         <div className="border-t bg-card/50 px-6 py-6 flex flex-col gap-3">
           {isLoggedIn ? (
-            <Link
-              href="/profile"
-              onClick={close}
-              className="px-4 py-3 rounded-lg text-base font-medium text-primary hover:bg-primary/10 transition-colors"
-            >
-              Your profile
-            </Link>
+            <>
+              <Link
+                href="/profile"
+                onClick={close}
+                className="px-4 py-3 rounded-lg text-base font-medium text-primary hover:bg-primary/10 transition-colors"
+              >
+                Your profile
+              </Link>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  close();
+                  signOut({ callbackUrl: "/" });
+                }}
+                className="rounded-lg gap-2 justify-start"
+              >
+                <LogOut className="size-4" />
+                Log out
+              </Button>
+            </>
           ) : (
             <>
               <Button asChild variant="outline" onClick={close} className="rounded-lg">

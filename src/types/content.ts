@@ -19,7 +19,7 @@ export interface PoemListItem {
   coverImage: string;
   likes: number;
   views: number;
-  readingMinutes: number;
+  readingTime: string;
   publishedAt: string | null;
   collection: { title: string; slug: string } | null;
 }
@@ -37,7 +37,7 @@ export interface PoemDetail {
   likes: number;
   views: number;
   wordCount: number;
-  readingMinutes: number;
+  readingTime: string;
   publishedAt: string | null;
   createdAt: string;
   collection: { title: string; slug: string } | null;
