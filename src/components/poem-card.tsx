@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Clock, Eye, Heart, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -7,21 +6,7 @@ import type { PoemListItem } from "@/types/content";
 
 export function PoemCard({ poem }: { poem: PoemListItem }) {
   return (
-    <Card className="group overflow-hidden py-0 transition-shadow hover:shadow-md">
-      {poem.coverImage ? (
-        <Link href={`/poems/${poem.slug}`} className="block">
-          <div className="relative aspect-video overflow-hidden">
-            <Image
-              src={poem.coverImage}
-              alt={poem.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 400px"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-          </div>
-        </Link>
-      ) : null}
-
+    <Card className="group transition-shadow hover:shadow-md">
       <CardContent className="flex flex-col gap-3 pt-6">
         <div className="flex items-start justify-between gap-2">
           <Link href={`/poems/${poem.slug}`}>
