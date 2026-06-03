@@ -53,24 +53,22 @@ function decodeHtmlEntities(html: string): string {
     return textarea.value;
   }
   // Server-side fallback: decode HTML entities
-  return html.replace(/&#(?:#?(?:x[0-9a-fA-F]+|\d+)|[a-zA-Z]+);/g, (entity) => {
-    if (entity.startsWith('&#x')) {
-      return String.fromCharCode(parseInt(entity.slice(3, -1), 16));
-    }
-    if (entity.startsWith('&#')) {
-      return String.fromCharCode(parseInt(entity.slice(2, -1), 10));
-    }
-    // Named entities
-    const map: Record<string, string> = {
-      '&quot;': '"',
-      '&apos;': "'",
-      '&nbsp;': ' ',
-      '&lt;': '<',
-      '&gt;': '>',
-      '&amp;': '&',
-    };
-    return map[entity] || entity;
-  });
+  // First, replace common escaped entities
+  let result = html
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+
+  // Then handle numeric entities that may have been missed
+  result = result.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)));
+  result = result.replace(/&#x([0-9a-fA-F]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)));
+
+  return result;
 }
 
 /**
