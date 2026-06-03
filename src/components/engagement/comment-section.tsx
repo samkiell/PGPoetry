@@ -14,7 +14,7 @@ import type { CommentItem } from "@/lib/data/comments";
 
 interface Viewer {
   id: string;
-  role: "reader" | "admin";
+  role: "reader" | "writer" | "admin";
 }
 
 export function CommentSection({

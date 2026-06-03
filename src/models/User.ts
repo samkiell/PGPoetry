@@ -1,6 +1,6 @@
 import { Schema, model, models, type Model, type Types } from "mongoose";
 
-export type UserRole = "reader" | "admin";
+export type UserRole = "reader" | "writer" | "admin";
 
 /**
  * Shares the `users` collection with the Auth.js MongoDB adapter.
@@ -36,7 +36,7 @@ const userSchema = new Schema<UserDoc>(
     emailVerified: { type: Date, default: null },
     image: { type: String, default: "" },
     password: { type: String, select: false },
-    role: { type: String, enum: ["reader", "admin"], default: "reader" },
+    role: { type: String, enum: ["reader", "writer", "admin"], default: "reader" },
     bio: { type: String, trim: true, maxlength: 280, default: "" },
   },
   { timestamps: true, collection: "users" },

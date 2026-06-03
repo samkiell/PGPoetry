@@ -1,6 +1,7 @@
 import "server-only";
 import { connectDB } from "@/lib/db";
 import { Comment, type CommentDoc } from "@/models/Comment";
+import type { UserRole } from "@/models/User";
 
 export interface CommentItem {
   id: string;
@@ -8,7 +9,7 @@ export interface CommentItem {
   authorName: string;
   authorId: string | null;
   authorImage: string;
-  authorRole: "reader" | "admin" | null;
+  authorRole: UserRole | null;
   createdAt: string;
 }
 
@@ -18,7 +19,7 @@ type LeanComment = Omit<CommentDoc, "author"> & {
     name?: string;
     username?: string;
     image?: string;
-    role?: "reader" | "admin";
+    role?: UserRole;
   } | null;
 };
 

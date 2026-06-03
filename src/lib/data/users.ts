@@ -1,6 +1,6 @@
 import "server-only";
 import { connectDB } from "@/lib/db";
-import { User, type UserDoc } from "@/models/User";
+import { User, type UserDoc, type UserRole } from "@/models/User";
 
 export interface UserProfile {
   id: string;
@@ -9,7 +9,7 @@ export interface UserProfile {
   email: string;
   image: string;
   bio: string;
-  role: "reader" | "admin";
+  role: UserRole;
   joinedAt: string;
 }
 
