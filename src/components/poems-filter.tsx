@@ -73,30 +73,52 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
 
       {tags.length > 0 ? (
         <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => setTagsExpanded(!tagsExpanded)}
-            className="flex items-center gap-2 text-sm font-medium hover:opacity-80"
-          >
-            <ChevronDown
-              className={cn(
-                "size-4 transition-transform",
-                tagsExpanded && "rotate-180"
-              )}
-            />
-            Browse tags
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => commit({ tag: null })}>
+              <Badge
+                variant={activeTag ? "secondary" : "default"}
+                className="cursor-pointer"
+              >
+                All
+              </Badge>
+            </button>
+            {tags.slice(0, 5).map(({ tag, count }) => {
+              const active = activeTag === tag;
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => commit({ tag: active ? null : tag })}
+                >
+                  <Badge
+                    variant={active ? "default" : "secondary"}
+                    className={cn("cursor-pointer", active && "ring-1 ring-ring")}
+                  >
+                    {tag}
+                    <span className="opacity-60">{count}</span>
+                  </Badge>
+                </button>
+              );
+            })}
+          </div>
+          {tags.length > 5 && (
+            <button
+              type="button"
+              onClick={() => setTagsExpanded(!tagsExpanded)}
+              className="flex items-center gap-2 text-sm font-medium hover:opacity-80 w-fit"
+            >
+              <ChevronDown
+                className={cn(
+                  "size-4 transition-transform",
+                  tagsExpanded && "rotate-180"
+                )}
+              />
+              {tagsExpanded ? "Show less" : "Show all tags"}
+            </button>
+          )}
           {tagsExpanded && (
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => commit({ tag: null })}>
-                <Badge
-                  variant={activeTag ? "secondary" : "default"}
-                  className="cursor-pointer"
-                >
-                  All
-                </Badge>
-              </button>
-              {tags.map(({ tag, count }) => {
+              {tags.slice(5).map(({ tag, count }) => {
                 const active = activeTag === tag;
                 return (
                   <button
