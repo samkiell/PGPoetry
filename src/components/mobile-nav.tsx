@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -30,11 +29,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
         </Button>
       </DialogTrigger>
       <DialogContent className="top-0 left-0 max-w-full translate-x-0 translate-y-0 rounded-none border-0 sm:max-w-sm h-screen flex flex-col gap-0 p-0 data-[state=open]:slide-in-from-left-0 data-[state=closed]:slide-out-to-left-0">
-        <div className="bg-card border-b px-6 py-6 flex items-center justify-between">
-
-          <DialogTitle className="text-primary font-serif text-2xl font-semibold">
-            PGpoetry
-          </DialogTitle>
+        <div className="bg-card border-b px-6 py-4 flex items-center justify-end">
           <DialogClose asChild>
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <X className="size-5" />

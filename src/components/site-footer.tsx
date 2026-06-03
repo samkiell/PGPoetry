@@ -11,17 +11,17 @@ const SOCIALS = [
 export function SiteFooter() {
   return (
     <footer data-site-footer className="border-t">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
-        <div>
-          <p className="font-serif text-xl font-semibold">{env.SITE_NAME}</p>
-          <p className="text-muted-foreground mt-1 text-sm">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 grid-cols-2 sm:grid-cols-3">
+        <div className="col-span-2 sm:col-span-1">
+          <p className="font-serif text-lg sm:text-xl font-semibold">{env.SITE_NAME}</p>
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
             Every verse, a priceless gift.
           </p>
         </div>
 
         <div>
-          <p className="text-sm font-semibold">Explore</p>
-          <ul className="text-muted-foreground mt-3 space-y-2 text-sm">
+          <p className="text-xs sm:text-sm font-semibold">Explore</p>
+          <ul className="text-muted-foreground mt-3 space-y-2 text-xs sm:text-sm">
             <li>
               <Link href="/poems" className="hover:text-foreground">
                 All poems
@@ -36,8 +36,8 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold">Connect</p>
-          <ul className="text-muted-foreground mt-3 space-y-2 text-sm">
+          <p className="text-xs sm:text-sm font-semibold">Connect</p>
+          <ul className="text-muted-foreground mt-3 space-y-2 text-xs sm:text-sm">
             {SOCIALS.map((s) => (
               <li key={s.label}>
                 <a
@@ -55,10 +55,9 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col gap-1 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs sm:px-6 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            &copy; {new Date().getFullYear()} {env.SITE_NAME}. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} {env.SITE_NAME}. All rights reserved.
           </p>
           <p>
             Developed by{" "}
