@@ -20,13 +20,13 @@ export async function SiteHeader() {
         <MobileNav isLoggedIn={Boolean(user)} />
 
         <Link href="/" className="flex items-center gap-2">
-          <div className="relative size-9 overflow-hidden rounded-lg border bg-muted">
+          <div className="relative size-9">
             <Image
-              src="/images/Favicon_PGPPen.png"
+              src="/images/pg_logo.png"
               alt="PGpoetry Logo"
               fill
               priority
-              className="object-cover"
+              className="object-contain"
             />
           </div>
           <span className="flex flex-col leading-none">

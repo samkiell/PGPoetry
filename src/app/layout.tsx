@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   icons: {
-    icon: "/images/Favicon_PGPPen.png",
+    icon: "/images/pg_logo.png",
   },
   alternates: {
     types: { "application/rss+xml": "/rss.xml" },
