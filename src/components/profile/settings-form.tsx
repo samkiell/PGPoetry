@@ -139,7 +139,7 @@ export function SettingsForm({
       {!hasPassword && (
         <div className="border-t pt-8">
           <p className="text-muted-foreground text-sm">
-            You're signed in with OAuth (Google). To use a password, try signing in normally.
+            You&apos;re signed in with OAuth (Google). To use a password, try signing in normally.
           </p>
         </div>
       )}

@@ -22,7 +22,7 @@ export function SignupForm({
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [signingIn, setSigningIn] = React.useState(false);
+  const [signInFailed, setSignInFailed] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const [state, formAction, pending] = useActionState<SignupState, FormData>(
@@ -30,13 +30,17 @@ export function SignupForm({
     { status: "idle" },
   );
 
-  // Once the account exists, sign the new reader straight in.
+  // Once the account exists, we're signing the new reader straight in — keep the
+  // button in its loading state for the whole flow (until it fails and we bail).
+  const signingIn = state.status === "success" && !signInFailed;
+
+  // Sign the new reader in after the account is created (external-system sync).
   React.useEffect(() => {
     if (state.status !== "success") return;
-    setSigningIn(true);
     void signIn("credentials", { usernameOrEmail: email, password, redirect: false }).then(
       (res) => {
         if (!res || res.error) {
+          setSignInFailed(true);
           toast.success("Account created — please log in.");
           router.push("/login");
           return;

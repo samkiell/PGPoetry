@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { Trash2, Shield } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -12,12 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  changeUserRole,
-  removeUser,
-  type UserRole,
-} from "@/app/actions/admin";
+import { changeUserRole, removeUser } from "@/app/actions/admin";
 import type { AdminUserRow } from "@/lib/data/admin";
+import type { UserRole } from "@/models/User";
 
 export function UsersManager({ users }: { users: AdminUserRow[] }) {
   const [pending, startTransition] = useTransition();

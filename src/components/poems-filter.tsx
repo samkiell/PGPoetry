@@ -22,7 +22,13 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
   const [tagsExpanded, setTagsExpanded] = React.useState(false);
 
   // Keep the input in sync if the URL changes from elsewhere (e.g. back button).
-  React.useEffect(() => setValue(query ?? ""), [query]);
+  // Adjusting state during render (rather than in an effect) avoids an extra
+  // commit and the cascading-render the react-hooks rule warns about.
+  const [lastQuery, setLastQuery] = React.useState(query ?? "");
+  if ((query ?? "") !== lastQuery) {
+    setLastQuery(query ?? "");
+    setValue(query ?? "");
+  }
 
   function commit(next: { q?: string | null; tag?: string | null }) {
     const params = new URLSearchParams(searchParams.toString());
