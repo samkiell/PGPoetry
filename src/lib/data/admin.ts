@@ -187,6 +187,19 @@ export interface AdminUserRow {
   updatedAt: string;
 }
 
+/**
+ * Coerces a value to an ISO string, falling back to `fallback` when the value
+ * is missing or unparseable. Auth.js's MongoDB adapter inserts user documents
+ * through the raw driver, bypassing Mongoose's `timestamps`, so adapter-created
+ * users have no `createdAt`/`updatedAt` — `new Date(undefined)` would otherwise
+ * throw `RangeError: Invalid time value` and crash the page.
+ */
+function toISO(value: unknown, fallback: string): string {
+  if (!value) return fallback;
+  const date = new Date(value as string | number | Date);
+  return Number.isNaN(date.getTime()) ? fallback : date.toISOString();
+}
+
 export async function getAllUsers(): Promise<AdminUserRow[]> {
   await connectDB();
   const users = await User.find()
@@ -194,15 +207,23 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
     .sort({ createdAt: -1 })
     .lean();
 
-  return users.map((user) => ({
-    id: String(user._id),
-    name: user.name,
-    username: user.username || "",
-    email: user.email,
-    role: user.role,
-    createdAt: new Date(user.createdAt).toISOString(),
-    updatedAt: new Date(user.updatedAt).toISOString(),
-  }));
+  return users.map((user) => {
+    // Every ObjectId encodes its creation time — a reliable fallback for
+    // adapter-created users that lack Mongoose timestamps.
+    const fromId = new Date(
+      parseInt(String(user._id).substring(0, 8), 16) * 1000,
+    ).toISOString();
+    const createdAt = toISO(user.createdAt, fromId);
+    return {
+      id: String(user._id),
+      name: user.name,
+      username: user.username || "",
+      email: user.email,
+      role: user.role,
+      createdAt,
+      updatedAt: toISO(user.updatedAt, createdAt),
+    };
+  });
 }
 
 export async function updateUserRole(
