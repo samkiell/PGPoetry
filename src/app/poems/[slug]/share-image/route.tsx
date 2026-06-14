@@ -60,13 +60,13 @@ export async function GET(
   const title = stripEmoji(poem.title);
 
   // Match the site exactly: Playfair Display for the title (font-serif),
-  // Cormorant @400 for the verse (.poem-content / --font-cormorant-gould), and
-  // Noto Sans Symbols 2 for the ❦ floral-heart ornament (the serif fonts don't
-  // include that glyph, so it would render as tofu otherwise).
-  const [logoData, playfair, cormorant, symbols] = await Promise.all([
+  // Inter @400 for the verse (.poem-content), and Noto Sans Symbols 2 for the
+  // ❦ floral-heart ornament (the other fonts don't include that glyph, so it
+  // would render as tofu otherwise).
+  const [logoData, playfair, inter, symbols] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "images", "pg_logo.png")),
     loadFont("Playfair+Display", 600),
-    loadFont("Cormorant", 400),
+    loadFont("Inter", 400),
     loadFont("Noto+Sans+Symbols+2", 400),
   ]);
   const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
@@ -128,8 +128,8 @@ export async function GET(
             gap: Math.round(verseSize * 0.45),
             color: t.muted,
             fontSize: verseSize,
-            fontFamily: "Cormorant",
-            lineHeight: 1.35,
+            fontFamily: "Inter",
+            lineHeight: 1.45,
             textAlign: "center",
           }}
         >
@@ -151,7 +151,7 @@ export async function GET(
       height: HEIGHT,
       fonts: [
         { name: "Playfair Display", data: playfair, weight: 600, style: "normal" },
-        { name: "Cormorant", data: cormorant, weight: 400, style: "normal" },
+        { name: "Inter", data: inter, weight: 400, style: "normal" },
         { name: "Noto Sans Symbols 2", data: symbols, weight: 400, style: "normal" },
       ],
     },

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Sans_3, Cormorant_Garamond, Cormorant } from "next/font/google";
+import { Playfair_Display, Source_Sans_3, Cormorant_Garamond, Cormorant, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -40,6 +40,13 @@ const cormorantLight = Cormorant({
   display: "swap",
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(env.SITE_URL),
   title: {
@@ -68,7 +75,7 @@ export default function RootLayout({
       {/* suppressHydrationWarning: browser extensions (wallets, etc.) inject
           <script>/attributes into <body> before React hydrates. */}
       <body
-        className={`${playfair.variable} ${sourceSans.variable} ${cormorant.variable} ${cormorantLight.variable}`}
+        className={`${playfair.variable} ${sourceSans.variable} ${cormorant.variable} ${cormorantLight.variable} ${inter.variable}`}
         suppressHydrationWarning
       >
         <ThemeProvider
