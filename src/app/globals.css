@@ -11,6 +11,7 @@
   --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-source-sans), system-ui, sans-serif;
   --font-artistic: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -138,7 +139,7 @@ html.lenis body {
 
 /* Rendered poem HTML (from the Tiptap editor or normalised legacy text). */
 .poem-content {
-  font-family: var(--font-inter), var(--font-sans);
+  font-family: var(--font-body);
   font-size: 1.25rem;
   /* Tighter than prose: in verse the line is the unit, so keep stanzas
      cohesive rather than spaced out like a list. */
