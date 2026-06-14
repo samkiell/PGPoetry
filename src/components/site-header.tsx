@@ -19,8 +19,8 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
         <MobileNav isLoggedIn={Boolean(user)} />
 
-        <Link href="/" className="flex items-center gap-1">
-          <div className="relative size-16">
+        <Link href="/" className="flex items-center">
+          <div className="relative size-16 shrink-0">
             <Image
               src="/images/pg_logo.png"
               alt="PGpoetry Logo"
@@ -29,7 +29,7 @@ export async function SiteHeader() {
               className="object-contain"
             />
           </div>
-          <span className="flex flex-col leading-none">
+          <span className="-ml-2 flex flex-col leading-none">
             <span className="font-serif text-lg font-semibold">
               {env.SITE_NAME}
             </span>
