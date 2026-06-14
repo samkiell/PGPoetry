@@ -61,7 +61,7 @@ export function PoemCard({ poem }: { poem: PoemListItem }) {
         <div className="flex flex-wrap gap-1.5 px-1">
           {poem.tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="secondary" asChild>
-              <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+              <Link href={`/tags/${encodeURIComponent(tag)}`}>{tag}</Link>
             </Badge>
           ))}
         </div>

@@ -22,6 +22,8 @@ import { getComments } from "@/lib/data/comments";
 import { getCurrentUser } from "@/lib/session";
 import { formatDate, poemContentToHtml } from "@/lib/utils";
 import { env } from "@/lib/env";
+import { AUTHOR_NAME, SITE_NAME, SITE_URL, metaDescription } from "@/lib/seo";
+import { JsonLd } from "@/components/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -34,28 +36,34 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const poem = await getPoemBySlug(slug);
-  if (!poem) return { title: "Poem not found" };
+  if (!poem) return { title: "Poem not found", robots: { index: false } };
 
-  const description = poem.content.slice(0, 160).replace(/\s+/g, " ").trim();
-  const url = `${env.SITE_URL}/poems/${poem.slug}`;
+  const description = metaDescription(poem.content);
+  const url = `${SITE_URL}/poems/${poem.slug}`;
+  const ogImage = poem.coverImage || `${url}/opengraph-image`;
 
   return {
     title: poem.title,
     description,
+    keywords: poem.tags,
+    authors: [{ name: AUTHOR_NAME }],
     alternates: { canonical: url },
     openGraph: {
-      title: poem.title,
+      title: `${poem.title} — ${SITE_NAME}`,
       description,
       url,
       type: "article",
-      images: poem.coverImage
-        ? [{ url: poem.coverImage }]
-        : [{ url: `/poems/${poem.slug}/opengraph-image` }],
+      siteName: SITE_NAME,
+      publishedTime: poem.publishedAt ?? poem.createdAt,
+      authors: [AUTHOR_NAME],
+      tags: poem.tags,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: poem.title }],
     },
     twitter: {
       card: "summary_large_image",
-      title: poem.title,
+      title: `${poem.title} — ${SITE_NAME}`,
       description,
+      images: [ogImage],
     },
   };
 }
@@ -73,6 +81,33 @@ export default async function PoemPage({ params }: { params: Params }) {
   ]);
 
   const shareUrl = `${env.SITE_URL}/poems/${poem.slug}`;
+  const ogImage = poem.coverImage || `${shareUrl}/opengraph-image`;
+
+  // Schema.org Poem (a subtype of CreativeWork) — drives rich results.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Poem",
+    name: poem.title,
+    headline: poem.title,
+    description: metaDescription(poem.content),
+    url: shareUrl,
+    image: ogImage,
+    inLanguage: "en",
+    datePublished: poem.publishedAt ?? poem.createdAt,
+    dateModified: poem.publishedAt ?? poem.createdAt,
+    keywords: poem.tags.join(", "),
+    wordCount: poem.wordCount,
+    author: { "@type": "Person", name: AUTHOR_NAME, url: SITE_URL },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/images/pg_logo.png` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": shareUrl },
+    ...(poem.collection
+      ? { isPartOf: { "@type": "CreativeWorkSeries", name: poem.collection.title } }
+      : {}),
+  };
 
   // Count the view after the response is streamed, so it never blocks render.
   after(async () => {
@@ -81,6 +116,7 @@ export default async function PoemPage({ params }: { params: Params }) {
 
   return (
     <article className="poem-page mx-auto max-w-2xl px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-24">
+      <JsonLd data={jsonLd} />
       {/* Collection eyebrow */}
       {poem.collection ? (
         <div className="reading-hide mb-6 text-center">
@@ -148,7 +184,7 @@ export default async function PoemPage({ params }: { params: Params }) {
         <div className="reading-hide mt-6 flex flex-wrap justify-start gap-2">
           {poem.tags.map((tag) => (
             <Badge key={tag} variant="secondary" asChild>
-              <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+              <Link href={`/tags/${encodeURIComponent(tag)}`}>{tag}</Link>
             </Badge>
           ))}
         </div>

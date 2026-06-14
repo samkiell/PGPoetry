@@ -8,8 +8,12 @@ import { getAllTags, getPublishedPoems } from "@/lib/data/poems";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Poems",
-  description: "Browse every published poem on PGpoetry — search by title, line, or tag.",
+  title: "All Poems",
+  description:
+    "Browse every published poem on PGpoetry — original short poems on faith, hope, love, and resilience. Search by title, line, or tag.",
+  // Collapse the ?q= / ?tag= / ?page= / ?sort= variants onto the clean URL so
+  // crawl budget and link equity concentrate on /poems and the real tag pages.
+  alternates: { canonical: "/poems" },
 };
 
 type SearchParams = Promise<{

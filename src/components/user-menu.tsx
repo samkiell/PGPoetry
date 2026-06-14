@@ -53,7 +53,7 @@ export function UserMenu({ user }: { user: CurrentUser }) {
         {user.role === "admin" ? (
           <DropdownMenuItem asChild>
             <Link href="/admin">
-              <LayoutDashboard /> Admin studio
+              <LayoutDashboard /> Admin portal
             </Link>
           </DropdownMenuItem>
         ) : null}

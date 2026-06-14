@@ -1,14 +1,38 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RotatingVerse } from "@/components/rotating-verse";
 import { PoemCard } from "@/components/poem-card";
 import { EmptyState } from "@/components/empty-state";
+import { JsonLd } from "@/components/json-ld";
 import { getFeaturedPoems, getLatestPoems } from "@/lib/data/poems";
 import { getFeaturedCollections } from "@/lib/data/collections";
+import { SITE_NAME, SITE_URL, SITE_LOGO } from "@/lib/seo";
 
 // Home reflects newly published poems, so render on demand.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: `${SITE_NAME} — Original Poetry, Emotional & Short Poems Online`,
+  description:
+    "Read original, emotion-driven poetry online — short poems on faith, hope, love, and resilience. Discover new verses, collect favorites, and share the lines that find you.",
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    title: `${SITE_NAME} — Original Poetry Online`,
+    description:
+      "Original, emotion-driven poetry — short poems on faith, hope, love, and resilience.",
+    url: SITE_URL,
+    type: "website",
+    siteName: SITE_NAME,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — Original Poetry Online`,
+    description:
+      "Original, emotion-driven poetry — short poems on faith, hope, love, and resilience.",
+  },
+};
 
 export default async function HomePage() {
   const [featured, latest, collections] = await Promise.all([
@@ -19,8 +43,33 @@ export default async function HomePage() {
 
   const hasAnyPoems = featured.length > 0 || latest.length > 0;
 
+  // WebSite schema with a SearchAction so Google can offer a sitelinks search
+  // box pointing at the on-site search (/poems?q=).
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: "Original, emotion-driven poetry online.",
+    inLanguage: "en",
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: SITE_LOGO },
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/poems?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <JsonLd data={websiteJsonLd} />
       {/* Hero */}
       <section className="flex flex-col items-center gap-8 pb-12 pt-10 text-center sm:gap-10 sm:pb-16 sm:pt-16">
         <div className="flex flex-col items-center gap-4 sm:gap-6">

@@ -124,7 +124,7 @@ export default async function AdminAnalyticsPage() {
                     items={a.topTags.map((t) => ({
                       label: t.tag,
                       value: t.likes,
-                      href: `/poems?tag=${encodeURIComponent(t.tag)}`,
+                      href: `/tags/${encodeURIComponent(t.tag)}`,
                       sub: `${t.poems} ${t.poems === 1 ? "poem" : "poems"}`,
                     }))}
                   />

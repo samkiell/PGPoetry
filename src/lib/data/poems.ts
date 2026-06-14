@@ -214,6 +214,21 @@ export async function getRelatedPoems(
   return docs.map(toListItem);
 }
 
+/** Lightweight slug+date list of every published poem — for the sitemap. */
+export async function getAllPublishedSlugs(): Promise<
+  { slug: string; updatedAt: string }[]
+> {
+  await connectDB();
+  const docs = await Poem.find(PUBLISHED)
+    .sort({ publishedAt: -1 })
+    .select("slug publishedAt updatedAt")
+    .lean<{ slug: string; publishedAt?: Date; updatedAt?: Date }[]>();
+  return docs.map((d) => ({
+    slug: d.slug,
+    updatedAt: new Date(d.updatedAt ?? d.publishedAt ?? Date.now()).toISOString(),
+  }));
+}
+
 export async function getAllTags(): Promise<{ tag: string; count: number }[]> {
   await connectDB();
   const rows = await Poem.aggregate<{ _id: string; count: number }>([

@@ -33,7 +33,7 @@ export default async function AdminLayout({
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 md:flex-row">
       <aside className="md:w-52 md:shrink-0">
         <p className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wide">
-          Admin studio
+          Admin portal
         </p>
         <nav className="flex gap-1 overflow-x-auto md:flex-col">
           {NAV.map((item) => (

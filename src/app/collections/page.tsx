@@ -7,8 +7,10 @@ import { getCollections } from "@/lib/data/collections";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Collections",
-  description: "Curated series of poems on PGpoetry — grouped by theme and mood.",
+  title: "Poetry Collections",
+  description:
+    "Curated series of original poems on PGpoetry — grouped by theme and mood, from faith and hope to love and resilience.",
+  alternates: { canonical: "/collections" },
 };
 
 export default async function CollectionsPage() {
