@@ -4,8 +4,8 @@ import { env } from "@/lib/env";
 
 const SOCIALS = [
   { label: "TikTok", href: "https://www.tiktok.com/@pg_poeticpen" },
-  { label: "Instagram", href: "https://instagram.com/" },
-  { label: "X", href: "https://x.com/" },
+  { label: "Instagram", href: "https://www.instagram.com/joyeke.pg/" },
+  { label: "X", href: "https://x.com/Jossyy31" },
 ];
 
 export async function SiteFooter() {
@@ -94,7 +94,7 @@ export async function SiteFooter() {
               href="https://samkiel.tech/agency"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground"
+              className="font-semibold text-[#ccff00] transition-colors hover:text-foreground"
             >
               SAMKIEL
             </a>
