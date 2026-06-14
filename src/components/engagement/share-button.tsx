@@ -33,19 +33,39 @@ export function ShareButton({
   const [copied, setCopied] = React.useState(false);
   const [busy, setBusy] = React.useState<null | "share" | "download">(null);
 
-  const text = encodeURIComponent(`${title} — PGpoetry`);
+  // The message body that should ride along with every share.
+  const shareText = `${title} — PGpoetry`;
+  const encodedText = encodeURIComponent(shareText);
   const encodedUrl = encodeURIComponent(url);
+  // WhatsApp/Telegram take a single text field, so fold the URL into the text.
+  const textWithUrl = encodeURIComponent(`${shareText} ${url}`);
 
   const targets = [
-    { label: "X / Twitter", href: `https://twitter.com/intent/tweet?text=${text}&url=${encodedUrl}` },
-    { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
-    { label: "WhatsApp", href: `https://wa.me/?text=${text}%20${encodedUrl}` },
+    {
+      label: "X / Twitter",
+      href: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+    },
+    {
+      label: "WhatsApp",
+      href: `https://api.whatsapp.com/send?text=${textWithUrl}`,
+    },
+    {
+      label: "Telegram",
+      href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
+    },
+    {
+      // Facebook strips pre-filled text by policy; `quote` is best-effort and
+      // it otherwise pulls the description from the page's OpenGraph tags.
+      label: "Facebook",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`,
+    },
   ];
 
   async function nativeShareOrMenu() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title, url });
+        // Include `text` so the body — not just the URL — rides along.
+        await navigator.share({ title, text: shareText, url });
       } catch {
         // user cancelled — no-op
       }
