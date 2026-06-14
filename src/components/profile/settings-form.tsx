@@ -41,22 +41,28 @@ export function SettingsForm({
     if (settingsState.status === "success") {
       toast.success("Settings updated");
       router.refresh();
+    } else if (settingsState.status === "error") {
+      toast.error(settingsState.error);
     }
-  }, [settingsState.status, router]);
+  }, [settingsState, router]);
 
   React.useEffect(() => {
     if (passwordState.status === "success") {
       toast.success("Password changed");
       router.refresh();
+    } else if (passwordState.status === "error") {
+      toast.error(passwordState.error);
     }
-  }, [passwordState.status, router]);
+  }, [passwordState, router]);
 
   React.useEffect(() => {
     if (setPwState.status === "success") {
       toast.success("Password set — you can now log in with email and password.");
       router.refresh();
+    } else if (setPwState.status === "error") {
+      toast.error(setPwState.error);
     }
-  }, [setPwState.status, router]);
+  }, [setPwState, router]);
 
   return (
     <div className="space-y-8">
@@ -89,9 +95,6 @@ export function SettingsForm({
             </p>
           </div>
 
-          {settingsState.status === "error" ? (
-            <p className="text-destructive text-sm">{settingsState.error}</p>
-          ) : null}
 
           <Button type="submit" disabled={settingsPending} className="self-start">
             {settingsPending ? "Saving…" : "Save account settings"}
@@ -137,9 +140,6 @@ export function SettingsForm({
               />
             </div>
 
-            {passwordState.status === "error" ? (
-              <p className="text-destructive text-sm">{passwordState.error}</p>
-            ) : null}
 
             <Button type="submit" disabled={passwordPending} className="self-start">
               {passwordPending ? "Updating…" : "Change password"}
@@ -180,9 +180,6 @@ export function SettingsForm({
               />
             </div>
 
-            {setPwState.status === "error" ? (
-              <p className="text-destructive text-sm">{setPwState.error}</p>
-            ) : null}
 
             <Button type="submit" disabled={setPwPending} className="self-start">
               {setPwPending ? "Setting…" : "Set password"}

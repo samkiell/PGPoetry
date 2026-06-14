@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useActionState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,10 @@ export function ForgotPasswordForm() {
     RequestResetState,
     FormData
   >(requestPasswordResetAction, { status: "idle" });
+
+  React.useEffect(() => {
+    if (state.status === "error") toast.error(state.error);
+  }, [state]);
 
   if (state.status === "sent") {
     return (
@@ -53,10 +58,6 @@ export function ForgotPasswordForm() {
           placeholder="you@example.com"
         />
       </div>
-
-      {state.status === "error" ? (
-        <p className="text-destructive text-sm">{state.error}</p>
-      ) : null}
 
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Sending…" : "Send reset email"}

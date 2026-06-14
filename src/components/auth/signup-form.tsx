@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,11 @@ export function SignupForm({
     });
     router.push(`/verify-email?${params.toString()}`);
   }, [state, callbackUrl, router]);
+
+  // Surface errors as a toast rather than inline text.
+  React.useEffect(() => {
+    if (state.status === "error") toast.error(state.error);
+  }, [state]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -110,10 +116,6 @@ export function SignupForm({
             </button>
           </div>
         </div>
-
-        {state.status === "error" ? (
-          <p className="text-destructive text-sm">{state.error}</p>
-        ) : null}
 
         <Button
           type="submit"

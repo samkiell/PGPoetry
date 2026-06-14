@@ -42,8 +42,14 @@ export function VerifyEmailForm({
   React.useEffect(() => {
     if (resendState.status === "resent") {
       toast.success("A new code is on its way.");
+    } else if (resendState.status === "error") {
+      toast.error(resendState.error);
     }
-  }, [resendState.status]);
+  }, [resendState]);
+
+  React.useEffect(() => {
+    if (state.status === "error") toast.error(state.error);
+  }, [state]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,10 +69,6 @@ export function VerifyEmailForm({
             className="text-center text-lg tracking-[0.4em]"
           />
         </div>
-
-        {state.status === "error" ? (
-          <p className="text-destructive text-sm">{state.error}</p>
-        ) : null}
 
         <Button
           type="submit"

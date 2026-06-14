@@ -40,8 +40,10 @@ export function ResetPasswordForm({
     if (state.status === "success") {
       toast.success("Password updated — please log in.");
       router.push("/login");
+    } else if (state.status === "error") {
+      toast.error(state.error);
     }
-  }, [state.status, router]);
+  }, [state, router]);
 
   React.useEffect(() => {
     if (resendState.status === "sent") {
@@ -115,10 +117,6 @@ export function ResetPasswordForm({
           </button>
         </div>
       </div>
-
-      {state.status === "error" ? (
-        <p className="text-destructive text-sm">{state.error}</p>
-      ) : null}
 
       <Button
         type="submit"

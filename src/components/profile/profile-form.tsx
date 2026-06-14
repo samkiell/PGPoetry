@@ -31,8 +31,10 @@ export function ProfileForm({
     if (state.status === "success") {
       toast.success("Profile updated");
       router.refresh();
+    } else if (state.status === "error") {
+      toast.error(state.error);
     }
-  }, [state.status, router]);
+  }, [state, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -56,9 +58,6 @@ export function ProfileForm({
         </span>
       </div>
 
-      {state.status === "error" ? (
-        <p className="text-destructive text-sm">{state.error}</p>
-      ) : null}
 
       <Button type="submit" disabled={pending} className="self-start">
         {pending ? "Saving…" : "Save changes"}
