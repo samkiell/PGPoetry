@@ -99,7 +99,11 @@ export function poemContentToHtml(content: string): string {
   const looksLikeHtml = /^<(p|h[1-6]|ul|ol|blockquote|div|br)\b/i.test(trimmed);
   if (looksLikeHtml) return decodeHtmlEntities(trimmed);
 
-  return trimmed
+  // Some v1 plain-text poems were stored already-encoded (e.g. `&quot;`,
+  // `&#x27;`). Decode those back to real characters first, then re-escape, so
+  // the entities don't show up literally in the rendered poem.
+  const decoded = decodeHtmlEntities(trimmed);
+  return decoded
     .split(/\n{2,}/)
     .map(
       (stanza) =>
@@ -110,13 +114,11 @@ export function poemContentToHtml(content: string): string {
 
 /** Strips tags so HTML poems still produce clean text excerpts/counts. */
 export function htmlToPlainText(html: string): string {
-  return html
+  const stripped = html
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|h[1-6]|div|blockquote|li)>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ")
-    .trim();
+    .replace(/<[^>]+>/g, "");
+  // Decode the full entity set (&quot;, &#x27;, numeric, …) so none leak into
+  // excerpts/counts. Decode last, after `&amp;` would otherwise double-process.
+  return decodeHtmlEntities(stripped).trim();
 }
