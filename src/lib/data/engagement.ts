@@ -2,6 +2,7 @@ import "server-only";
 import { connectDB } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { peekVisitorId } from "@/lib/visitor";
+import { Poem } from "@/models/Poem";
 import { Like } from "@/models/Like";
 import { Favorite } from "@/models/Favorite";
 import { Comment } from "@/models/Comment";
@@ -30,19 +31,21 @@ export async function getEngagementState(
       ? { poem: poemId, visitorId }
       : null;
 
-  const [likedDoc, favoritedDoc, likeCount, commentCount] = await Promise.all([
+  const [likedDoc, favoritedDoc, poemDoc, commentCount] = await Promise.all([
     likeIdentity ? Like.exists(likeIdentity) : Promise.resolve(null),
     user
       ? Favorite.exists({ poem: poemId, user: user.id })
       : Promise.resolve(null),
-    Like.countDocuments({ poem: poemId }),
+    // `Poem.likes` is the source of truth (carries a seeded base), not a count
+    // of Like docs — see toggleLike.
+    Poem.findById(poemId).select("likes").lean<{ likes?: number }>(),
     Comment.countDocuments({ poem: poemId }),
   ]);
 
   return {
     liked: Boolean(likedDoc),
     favorited: Boolean(favoritedDoc),
-    likeCount,
+    likeCount: poemDoc?.likes ?? 0,
     commentCount,
   };
 }

@@ -44,19 +44,33 @@ export async function toggleLike(
   const existing = await Like.findOne({ poem: poemId, ...identity });
 
   let liked: boolean;
+  let delta: number;
   if (existing) {
     await existing.deleteOne();
     liked = false;
+    delta = -1;
   } else {
     await Like.create({ poem: poemId, ...identity });
     liked = true;
+    delta = 1;
   }
 
-  // Keep the denormalised counter honest by recounting.
-  const likes = await Like.countDocuments({ poem: poemId });
-  await Poem.updateOne({ _id: poemId }, { likes });
+  // `Poem.likes` is the source of truth (it carries a seeded base that has no
+  // backing Like docs), so adjust it by the toggle delta rather than recounting
+  // from the Like collection — which would wipe the seed. Clamp at 0.
+  const updated = await Poem.findOneAndUpdate(
+    { _id: poemId },
+    [
+      {
+        $set: {
+          likes: { $max: [0, { $add: [{ $ifNull: ["$likes", 0] }, delta] }] },
+        },
+      },
+    ],
+    { new: true, projection: { likes: 1 } },
+  );
 
-  return { ok: true, liked, likes };
+  return { ok: true, liked, likes: updated?.likes ?? 0 };
 }
 
 /* -------------------------------------------------------------------------- */
