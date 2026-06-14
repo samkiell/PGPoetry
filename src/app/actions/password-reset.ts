@@ -13,23 +13,8 @@ import { ResetPassword } from "@/lib/email/templates/reset-password";
 import { ResetComplete } from "@/lib/email/templates/reset-complete";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { env } from "@/lib/env";
 import { rateLimit, rateLimitByIp } from "@/lib/rate-limit";
-import { headers } from "next/headers";
-
-/**
- * Builds the public origin (scheme://host) for the current request from proxy
- * headers, so reset links point at wherever the app is actually served —
- * localhost in dev, the deployed domain in prod. Falls back to env.SITE_URL.
- */
-async function getRequestOrigin(): Promise<string> {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (!host) return env.SITE_URL;
-  const proto =
-    h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
+import { getRequestOrigin } from "@/lib/request-origin";
 
 const emailSchema = z.string().trim().email("Enter a valid email address.");
 

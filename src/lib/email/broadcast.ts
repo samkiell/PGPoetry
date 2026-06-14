@@ -17,8 +17,15 @@ const GLIMPSE_WORDS = 40;
  * findOneAndUpdate on `broadcastedAt` as a claim, so concurrent publish paths
  * (manual save + scheduled sweep) can't double-send. Best-effort: failures are
  * logged, never thrown, so they can't break publishing.
+ *
+ * @param origin Public origin (scheme://host) for the "read in full" link.
+ *   Pass the live request origin from the action; falls back to env.SITE_URL
+ *   for contexts without a request (e.g. background/scheduled publishing).
  */
-export async function broadcastNewPoem(poemId: string): Promise<void> {
+export async function broadcastNewPoem(
+  poemId: string,
+  origin?: string,
+): Promise<void> {
   try {
     await connectDB();
 
@@ -43,7 +50,8 @@ export async function broadcastNewPoem(poemId: string): Promise<void> {
 
     const plain = htmlToPlainText(poem.content);
     const { text: glimpse } = excerpt(plain, GLIMPSE_WORDS);
-    const poemUrl = `${env.SITE_URL}/poems/${poem.slug}`;
+    const baseUrl = (origin ?? env.SITE_URL).replace(/\/+$/, "");
+    const poemUrl = `${baseUrl}/poems/${poem.slug}`;
 
     const react = NewPoem({
       title: poem.title,

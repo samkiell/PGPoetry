@@ -12,6 +12,7 @@ import { Favorite } from "@/models/Favorite";
 import { sendEmail } from "@/lib/email/send";
 import { AccountDeleted } from "@/lib/email/templates/account-deleted";
 import { broadcastNewPoem } from "@/lib/email/broadcast";
+import { getRequestOrigin } from "@/lib/request-origin";
 
 type Result<T = unknown> = ({ ok: true } & T) | { ok: false; error: string };
 
@@ -73,8 +74,10 @@ export async function createPoem(
 
     // Tell readers about a brand-new published poem. The broadcast is
     // idempotent (guarded by broadcastedAt), so this is safe to call directly.
+    // Capture the live origin now so the email link uses the real host.
     if (poem.status === "published") {
-      void broadcastNewPoem(String(poem._id));
+      const origin = await getRequestOrigin();
+      void broadcastNewPoem(String(poem._id), origin);
     }
 
     revalidatePath("/admin/poems");
@@ -125,7 +128,8 @@ export async function updatePoem(
     // Broadcast on first publish. broadcastedAt makes this idempotent, so an
     // edit to an already-announced poem won't re-email anyone.
     if (poem.status === "published") {
-      void broadcastNewPoem(String(poem._id));
+      const origin = await getRequestOrigin();
+      void broadcastNewPoem(String(poem._id), origin);
     }
 
     revalidatePath("/admin/poems");

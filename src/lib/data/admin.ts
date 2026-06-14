@@ -184,8 +184,10 @@ export async function publishDuePoems(): Promise<number> {
 
   // Announce each newly published poem. The broadcast is idempotent.
   const { broadcastNewPoem } = await import("@/lib/email/broadcast");
+  const { getRequestOrigin } = await import("@/lib/request-origin");
+  const origin = await getRequestOrigin();
   for (const poem of due) {
-    void broadcastNewPoem(String(poem._id));
+    void broadcastNewPoem(String(poem._id), origin);
   }
 
   return result.modifiedCount ?? 0;
