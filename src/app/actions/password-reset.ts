@@ -13,8 +13,34 @@ import { ResetPassword } from "@/lib/email/templates/reset-password";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { env } from "@/lib/env";
+import { rateLimit, rateLimitByIp } from "@/lib/rate-limit";
 
 const emailSchema = z.string().trim().email("Enter a valid email address.");
+
+const TEN_MIN = 10 * 60_000;
+const THROTTLED = "Too many requests. Please wait a few minutes and try again.";
+
+/**
+ * Issues a reset token and emails the link + code, but only for accounts that
+ * have a password (credentials users). No-ops silently otherwise so the caller
+ * can always report success without leaking which emails are registered.
+ */
+async function sendResetEmail(email: string): Promise<void> {
+  await connectDB();
+  const user = await User.findOne({ email: email.toLowerCase() })
+    .select("+password")
+    .lean();
+  if (!user?.password) return;
+
+  const { code, token } = await issueToken(email, "password-reset");
+  const resetUrl = `${env.SITE_URL}/reset-password?token=${token}`;
+  await sendEmail({
+    to: email,
+    subject: "Reset your PGpoetry password",
+    react: ResetPassword({ code, resetUrl, expiresMinutes: CODE_TTL_MINUTES }),
+    devPreview: `reset code: ${code} · link: ${resetUrl}`,
+  });
+}
 
 export type RequestResetState =
   | { status: "idle" }
@@ -36,28 +62,40 @@ export async function requestPasswordResetAction(
     return { status: "error", error: email.error.issues[0]?.message ?? "Invalid email." };
   }
 
-  await connectDB();
-  const user = await User.findOne({ email: email.data.toLowerCase() })
-    .select("+password")
-    .lean();
-
-  // Only send to accounts that actually have a password (credentials users).
-  // OAuth-only accounts have nothing to reset.
-  if (user?.password) {
-    const { code, token } = await issueToken(email.data, "password-reset");
-    const resetUrl = `${env.SITE_URL}/reset-password?token=${token}`;
-    await sendEmail({
-      to: email.data,
-      subject: "Reset your PGpoetry password",
-      react: ResetPassword({
-        code,
-        resetUrl,
-        expiresMinutes: CODE_TTL_MINUTES,
-      }),
-      devPreview: `reset code: ${code} · link: ${resetUrl}`,
-    });
+  // Throttle per IP and per target inbox before sending.
+  const byIp = await rateLimitByIp("reset-request", 3, TEN_MIN);
+  const byEmail = rateLimit(
+    `reset-request:email:${email.data.toLowerCase()}`,
+    3,
+    TEN_MIN,
+  );
+  if (!byIp.success || !byEmail.success) {
+    return { status: "error", error: THROTTLED };
   }
 
+  await sendResetEmail(email.data);
+  return { status: "sent" };
+}
+
+/** Re-sends a reset email (used by the "resend" button on the reset page). */
+export async function resendPasswordResetAction(
+  _prev: RequestResetState,
+  formData: FormData,
+): Promise<RequestResetState> {
+  const email = emailSchema.safeParse(formData.get("email"));
+  if (!email.success) return { status: "error", error: "Invalid email." };
+
+  const byIp = await rateLimitByIp("reset-request", 3, TEN_MIN);
+  const byEmail = rateLimit(
+    `reset-request:email:${email.data.toLowerCase()}`,
+    3,
+    TEN_MIN,
+  );
+  if (!byIp.success || !byEmail.success) {
+    return { status: "error", error: THROTTLED };
+  }
+
+  await sendResetEmail(email.data);
   return { status: "sent" };
 }
 
@@ -81,6 +119,12 @@ export async function resetPasswordAction(
   _prev: ResetState,
   formData: FormData,
 ): Promise<ResetState> {
+  // Cap reset attempts per IP (complements the per-token attempt cap).
+  const limited = await rateLimitByIp("reset-submit", 10, TEN_MIN);
+  if (!limited.success) {
+    return { status: "error", error: THROTTLED };
+  }
+
   const password = passwordSchema.safeParse(formData.get("password"));
   if (!password.success) {
     return {

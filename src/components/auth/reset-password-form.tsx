@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import {
   resetPasswordAction,
+  resendPasswordResetAction,
   type ResetState,
+  type RequestResetState,
 } from "@/app/actions/password-reset";
 
 export function ResetPasswordForm({
@@ -23,11 +25,16 @@ export function ResetPasswordForm({
   const router = useRouter();
   const viaLink = token.length > 0;
   const [showPassword, setShowPassword] = React.useState(false);
+  const [emailValue, setEmailValue] = React.useState(email);
 
   const [state, formAction, pending] = useActionState<ResetState, FormData>(
     resetPasswordAction,
     { status: "idle" },
   );
+  const [resendState, resendAction, resending] = useActionState<
+    RequestResetState,
+    FormData
+  >(resendPasswordResetAction, { status: "idle" });
 
   React.useEffect(() => {
     if (state.status === "success") {
@@ -36,8 +43,17 @@ export function ResetPasswordForm({
     }
   }, [state.status, router]);
 
+  React.useEffect(() => {
+    if (resendState.status === "sent") {
+      toast.success("If that account exists, a new code is on its way.");
+    } else if (resendState.status === "error") {
+      toast.error(resendState.error);
+    }
+  }, [resendState]);
+
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
+      <form action={formAction} className="flex flex-col gap-4">
       {viaLink ? (
         <input type="hidden" name="token" value={token} />
       ) : (
@@ -50,7 +66,8 @@ export function ResetPasswordForm({
               type="email"
               autoComplete="email"
               required
-              defaultValue={email}
+              value={emailValue}
+              onChange={(e) => setEmailValue(e.target.value)}
               placeholder="you@example.com"
             />
           </div>
@@ -110,6 +127,20 @@ export function ResetPasswordForm({
       >
         {pending || state.status === "success" ? "Saving…" : "Update password"}
       </Button>
-    </form>
+      </form>
+
+      {!viaLink ? (
+        <form action={resendAction} className="text-center">
+          <input type="hidden" name="email" value={emailValue} />
+          <button
+            type="submit"
+            disabled={resending || emailValue.length === 0}
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors disabled:opacity-50"
+          >
+            {resending ? "Sending…" : "Didn't get a code? Resend"}
+          </button>
+        </form>
+      ) : null}
+    </div>
   );
 }

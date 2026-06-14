@@ -7,6 +7,12 @@ import { sendEmail } from "@/lib/email/send";
 import { VerifyEmail } from "@/lib/email/templates/verify-email";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { rateLimit, rateLimitByIp } from "@/lib/rate-limit";
+
+const TEN_MIN = 10 * 60_000;
+
+/** Generic message shown when an email-sending action is throttled. */
+const THROTTLED = "Too many requests. Please wait a few minutes and try again.";
 
 const signupSchema = z.object({
   name: z.string().trim().min(1, "Tell us your name.").max(80),
@@ -44,6 +50,12 @@ export async function signupAction(
   _prev: SignupState,
   formData: FormData,
 ): Promise<SignupState> {
+  // Throttle account creation per IP before doing any work.
+  const limited = await rateLimitByIp("signup", 5, TEN_MIN);
+  if (!limited.success) {
+    return { status: "error", error: THROTTLED };
+  }
+
   const parsed = signupSchema.safeParse({
     name: formData.get("name"),
     username: formData.get("username"),
@@ -81,6 +93,12 @@ export async function verifyEmailAction(
   _prev: VerifyEmailState,
   formData: FormData,
 ): Promise<VerifyEmailState> {
+  // Cap code-guessing attempts per IP (complements the per-token attempt cap).
+  const limited = await rateLimitByIp("verify-email", 10, TEN_MIN);
+  if (!limited.success) {
+    return { status: "error", error: THROTTLED };
+  }
+
   const email = emailSchema.safeParse(formData.get("email"));
   const code = codeSchema.safeParse(formData.get("code"));
 
@@ -108,6 +126,18 @@ export async function resendVerificationAction(
 ): Promise<VerifyEmailState> {
   const email = emailSchema.safeParse(formData.get("email"));
   if (!email.success) return { status: "error", error: "Invalid email." };
+
+  // Two-layer throttle: per IP, and per target inbox so it can't be flooded
+  // from rotating IPs. Both are checked before any send.
+  const byIp = await rateLimitByIp("resend-verify", 3, TEN_MIN);
+  const byEmail = rateLimit(
+    `resend-verify:email:${email.data.toLowerCase()}`,
+    3,
+    TEN_MIN,
+  );
+  if (!byIp.success || !byEmail.success) {
+    return { status: "error", error: THROTTLED };
+  }
 
   await connectDB();
   const user = await User.findOne({ email: email.data.toLowerCase() }).lean();
