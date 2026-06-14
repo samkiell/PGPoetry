@@ -56,21 +56,22 @@ export async function toggleLike(
   }
 
   // `Poem.likes` is the source of truth (it carries a seeded base that has no
-  // backing Like docs), so adjust it by the toggle delta rather than recounting
-  // from the Like collection — which would wipe the seed. Clamp at 0.
+  // backing Like docs), so adjust it by the toggle delta with an atomic $inc
+  // rather than recounting from the Like collection — which would wipe the seed.
   const updated = await Poem.findOneAndUpdate(
     { _id: poemId },
-    [
-      {
-        $set: {
-          likes: { $max: [0, { $add: [{ $ifNull: ["$likes", 0] }, delta] }] },
-        },
-      },
-    ],
+    { $inc: { likes: delta } },
     { new: true, projection: { likes: 1 } },
   );
 
-  return { ok: true, liked, likes: updated?.likes ?? 0 };
+  // Guard against ever going negative (e.g. a stray unlike on a 0 count).
+  let likes = updated?.likes ?? 0;
+  if (likes < 0) {
+    await Poem.updateOne({ _id: poemId }, { likes: 0 });
+    likes = 0;
+  }
+
+  return { ok: true, liked, likes };
 }
 
 /* -------------------------------------------------------------------------- */
