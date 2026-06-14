@@ -29,7 +29,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           <Menu className="size-5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="top-0 left-0 max-w-full translate-x-0 translate-y-0 rounded-none border-0 sm:max-w-sm h-screen flex flex-col gap-0 p-0 data-[state=open]:slide-in-from-left-0 data-[state=closed]:slide-out-to-left-0">
+      <DialogContent className="top-0 right-0 left-auto max-w-full translate-x-0 translate-y-0 rounded-none border-0 sm:max-w-sm h-screen flex flex-col gap-0 p-0 data-[state=open]:slide-in-from-right-0 data-[state=closed]:slide-out-to-right-0">
         <div className="bg-card border-b px-6 py-4 flex items-center justify-end">
           <DialogClose asChild>
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">

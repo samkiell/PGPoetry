@@ -16,9 +16,7 @@ export async function SiteHeader() {
       data-site-header
       className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
-        <MobileNav isLoggedIn={Boolean(user)} />
-
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-2 sm:px-6">
         <Link href="/" className="flex items-center">
           <div className="relative size-16 shrink-0">
             <Image
@@ -57,6 +55,7 @@ export async function SiteHeader() {
               </Button>
             </>
           )}
+          <MobileNav isLoggedIn={Boolean(user)} />
         </div>
       </div>
     </header>
