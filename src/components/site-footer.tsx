@@ -6,7 +6,6 @@ const SOCIALS = [
   { label: "TikTok", href: "https://www.tiktok.com/@pg_poeticpen" },
   { label: "Instagram", href: "https://instagram.com/" },
   { label: "X", href: "https://x.com/" },
-  { label: "YouTube", href: "https://youtube.com/" },
 ];
 
 export async function SiteFooter() {
@@ -63,6 +62,12 @@ export async function SiteFooter() {
                 </li>
               </>
             )}
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-xs sm:text-sm font-semibold">Contact us</p>
+          <ul className="text-muted-foreground mt-3 space-y-2 text-xs sm:text-sm">
             {SOCIALS.map((s) => (
               <li key={s.label}>
                 <a
@@ -85,9 +90,8 @@ export async function SiteFooter() {
             &copy; {new Date().getFullYear()} {env.SITE_NAME}. All rights reserved.
           </p>
           <p>
-            Developed by{" "}
             <a
-              href="https://samkiel.dev"
+              href="https://samkiel.tech/agency"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground"
