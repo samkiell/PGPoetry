@@ -36,6 +36,15 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+// For OAuth accounts setting a first password — no current password to verify.
+const setPasswordSchema = z.object({
+  newPassword: z.string().min(8, "Password must be at least 8 characters."),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match.",
+  path: ["confirmPassword"],
+});
+
 export type SettingsState =
   | { status: "idle" }
   | { status: "error"; error: string }
@@ -158,6 +167,48 @@ export async function updatePasswordAction(
     { _id: user.id },
     { password: hashedPassword },
   );
+
+  revalidatePath("/profile/settings");
+  return { status: "success" };
+}
+
+/**
+ * Sets a FIRST password for an account that doesn't have one yet (e.g. signed
+ * up via Google). The user is already authenticated, so ownership is proven —
+ * no current password or email verification needed. Refuses if a password
+ * already exists, so this can't be used to bypass the current-password check.
+ */
+export async function setPasswordAction(
+  _prev: SettingsState,
+  formData: FormData,
+): Promise<SettingsState> {
+  const user = await getCurrentUser();
+  if (!user) return { status: "error", error: "You're not signed in." };
+
+  const parsed = setPasswordSchema.safeParse({
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      error: parsed.error.issues[0]?.message ?? "Please check your details.",
+    };
+  }
+
+  await connectDB();
+  const existing = await User.findById(user.id).select("+password");
+  if (!existing) return { status: "error", error: "Account not found." };
+  if (existing.password) {
+    // Already has one — must go through the change-password flow instead.
+    return {
+      status: "error",
+      error: "You already have a password. Use “Change password” instead.",
+    };
+  }
+
+  const hashedPassword = await bcryptjs.hash(parsed.data.newPassword, 10);
+  await User.updateOne({ _id: user.id }, { password: hashedPassword });
 
   revalidatePath("/profile/settings");
   return { status: "success" };

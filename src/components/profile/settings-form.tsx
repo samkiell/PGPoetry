@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import {
   updateSettingsAction,
   updatePasswordAction,
+  setPasswordAction,
   type SettingsState,
 } from "@/app/actions/profile";
 
@@ -31,6 +32,10 @@ export function SettingsForm({
     updatePasswordAction,
     { status: "idle" },
   );
+  const [setPwState, setPwAction, setPwPending] = useActionState<SettingsState, FormData>(
+    setPasswordAction,
+    { status: "idle" },
+  );
 
   React.useEffect(() => {
     if (settingsState.status === "success") {
@@ -45,6 +50,13 @@ export function SettingsForm({
       router.refresh();
     }
   }, [passwordState.status, router]);
+
+  React.useEffect(() => {
+    if (setPwState.status === "success") {
+      toast.success("Password set — you can now log in with email and password.");
+      router.refresh();
+    }
+  }, [setPwState.status, router]);
 
   return (
     <div className="space-y-8">
@@ -138,9 +150,44 @@ export function SettingsForm({
 
       {!hasPassword && (
         <div className="border-t pt-8">
-          <p className="text-muted-foreground text-sm">
-            You&apos;re signed in with OAuth (Google). To use a password, try signing in normally.
+          <h3 className="mb-1 text-lg font-semibold">Set a password</h3>
+          <p className="text-muted-foreground mb-4 text-sm">
+            You signed in with Google. Set a password to also log in with your
+            email and password.
           </p>
+          <form action={setPwAction} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="setNewPassword">New password</Label>
+              <Input
+                id="setNewPassword"
+                name="newPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                minLength={8}
+              />
+              <p className="text-muted-foreground text-xs">At least 8 characters</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="setConfirmPassword">Confirm password</Label>
+              <Input
+                id="setConfirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                minLength={8}
+              />
+            </div>
+
+            {setPwState.status === "error" ? (
+              <p className="text-destructive text-sm">{setPwState.error}</p>
+            ) : null}
+
+            <Button type="submit" disabled={setPwPending} className="self-start">
+              {setPwPending ? "Setting…" : "Set password"}
+            </Button>
+          </form>
         </div>
       )}
     </div>
