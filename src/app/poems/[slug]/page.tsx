@@ -170,7 +170,7 @@ export default async function PoemPage({ params }: { params: Params }) {
           initialFavorited={engagement.favorited}
           isLoggedIn={Boolean(viewer)}
         />
-        <ShareButton title={poem.title} url={shareUrl} />
+        <ShareButton title={poem.title} url={shareUrl} slug={poem.slug} />
         <span className="bg-border mx-1 h-5 w-px" />
         <ReadingModeToggle />
       </div>
