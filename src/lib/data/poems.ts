@@ -114,10 +114,14 @@ export async function getPublishedPoems(
   const filter: QueryFilter<PoemDoc> = { ...PUBLISHED };
 
   if (opts.q?.trim()) {
-    // Indexed full-text search over title + content, instead of an unanchored
-    // regex collection scan. Searching by tag is handled by the `tag` filter
-    // and the filter UI, so it doesn't need to be folded in here.
-    filter.$text = { $search: opts.q.trim() };
+    // Search-as-you-type: match any word that *starts with* the query (`\b`
+    // word boundary) across title, content, and tags. Anchoring to word starts
+    // means a partial word like "lov" surfaces "love" immediately as the user
+    // types, while staying far more selective than an unanchored `.*q.*` scan.
+    // ($text was tried but can't be OR'd with a prefix match — MongoDB returns
+    //  "No query solutions" — and on its own it only matches whole words.)
+    const rx = new RegExp("\\b" + escapeRegExp(opts.q.trim()), "i");
+    filter.$or = [{ title: rx }, { content: rx }, { tags: rx }];
   }
   if (opts.tag?.trim()) {
     filter.tags = opts.tag.trim().toLowerCase();
@@ -219,4 +223,8 @@ export async function getAllTags(): Promise<{ tag: string; count: number }[]> {
     { $sort: { count: -1, _id: 1 } },
   ]);
   return rows.map((r) => ({ tag: r._id, count: r.count }));
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

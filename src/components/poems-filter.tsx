@@ -23,37 +23,67 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
   const [tagsExpanded, setTagsExpanded] = React.useState(false);
   const [pending, startTransition] = useTransition();
 
-  // Keep the input in sync if the URL changes from elsewhere (e.g. back button).
-  // Adjusting state during render (rather than in an effect) avoids an extra
+  // Keep the input in sync when the URL query changes from elsewhere — back
+  // button, "Clear filters" — but never clobber what the user is mid-way
+  // through typing (live search lags the input behind the committed query).
+  // Adjusting state during render rather than in an effect avoids an extra
   // commit and the cascading-render the react-hooks rule warns about.
   const [lastQuery, setLastQuery] = React.useState(query ?? "");
   if ((query ?? "") !== lastQuery) {
     setLastQuery(query ?? "");
-    setValue(query ?? "");
+    // Only adopt the external value if the user isn't actively editing toward
+    // it; if it already matches what's typed, there's nothing to sync.
+    if ((query ?? "") !== value.trim()) setValue(query ?? "");
   }
 
-  function commit(next: { q?: string | null; tag?: string | null }) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next.q !== undefined) {
-      if (next.q) params.set("q", next.q);
-      else params.delete("q");
-    }
-    if (next.tag !== undefined) {
-      if (next.tag) params.set("tag", next.tag);
-      else params.delete("tag");
-    }
-    // Any filter change resets pagination.
-    params.delete("page");
-    startTransition(() => {
-      router.push(`${pathname}?${params.toString()}`);
-    });
+  const commit = React.useCallback(
+    (
+      next: { q?: string | null; tag?: string | null },
+      mode: "push" | "replace" = "push",
+    ) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (next.q !== undefined) {
+        if (next.q) params.set("q", next.q);
+        else params.delete("q");
+      }
+      if (next.tag !== undefined) {
+        if (next.tag) params.set("tag", next.tag);
+        else params.delete("tag");
+      }
+      // Any filter change resets pagination.
+      params.delete("page");
+      const url = `${pathname}?${params.toString()}`;
+      startTransition(() => {
+        // Replace (not push) for live typing so the back button skips over
+        // every intermediate keystroke; explicit actions still push.
+        if (mode === "replace") router.replace(url);
+        else router.push(url);
+      });
+    },
+    [searchParams, pathname, router],
+  );
+
+  // Search as the user types, debounced so we don't fire a request per
+  // keystroke. The timer is cleared on each change and on unmount.
+  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  function handleSearchChange(next: string) {
+    setValue(next);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      commit({ q: next.trim() || null }, "replace");
+    }, 350);
   }
+  React.useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          // Submitting jumps past the debounce and pushes a history entry.
+          if (timer.current) clearTimeout(timer.current);
           commit({ q: value.trim() || null });
         }}
         className="relative"
@@ -65,7 +95,7 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
         )}
         <Input
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Search poems by title, line, or tag…"
           className="pl-9"
           aria-label="Search poems"
@@ -74,6 +104,7 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
           <button
             type="button"
             onClick={() => {
+              if (timer.current) clearTimeout(timer.current);
               setValue("");
               commit({ q: null });
             }}
@@ -145,7 +176,7 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
                       className={cn("cursor-pointer", active && "ring-1 ring-ring")}
                     >
                       {tag}
-                      <span className="opacity-60">{count}</span>
+                      <span className="ml-1 opacity-60">{count}</span>
                     </Badge>
                   </button>
                 );
