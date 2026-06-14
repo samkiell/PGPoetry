@@ -52,7 +52,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             href="/"
             onClick={close}
             className="flex items-center"
-            aria-label={`${env.SITE_NAME} home`}
+            aria-label={`${SITE_NAME} home`}
           >
             <div className="relative size-11 shrink-0">
               <Image
@@ -63,7 +63,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
               />
             </div>
             <span className="-ml-1 font-serif text-lg font-semibold">
-              {env.SITE_NAME}
+              {SITE_NAME}
             </span>
           </Link>
           <DialogClose asChild>
