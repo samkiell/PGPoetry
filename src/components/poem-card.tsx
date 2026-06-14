@@ -5,15 +5,23 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { PoemListItem } from "@/types/content";
 
 export function PoemCard({ poem }: { poem: PoemListItem }) {
+  const href = `/poems/${poem.slug}`;
+
   return (
-    <Card className="group transition-shadow hover:shadow-md">
+    <Card className="group relative transition-shadow hover:shadow-md">
+      {/* Stretched link — makes the whole card navigate to the poem. Nested
+          links (collection, tags) sit above it via `relative z-10`. */}
+      <Link
+        href={href}
+        className="absolute inset-0 z-0 rounded-xl focus-visible:ring-ring/50 focus-visible:outline-none focus-visible:ring-[3px]"
+        aria-label={poem.title}
+      />
+
       <CardContent className="flex flex-col gap-3 pt-6">
         <div className="flex items-start justify-between gap-2">
-          <Link href={`/poems/${poem.slug}`}>
-            <h3 className="font-serif text-xl leading-snug font-semibold transition-colors group-hover:text-primary">
-              {poem.title}
-            </h3>
-          </Link>
+          <h3 className="font-serif text-xl leading-snug font-semibold transition-colors group-hover:text-primary">
+            {poem.title}
+          </h3>
           {poem.featured ? (
             <Star className="size-4 shrink-0 fill-primary text-primary" />
           ) : null}
@@ -22,7 +30,7 @@ export function PoemCard({ poem }: { poem: PoemListItem }) {
         {poem.collection ? (
           <Link
             href={`/collections/${poem.collection.slug}`}
-            className="text-muted-foreground text-xs font-medium uppercase tracking-wide hover:text-primary"
+            className="text-muted-foreground relative z-10 w-fit text-xs font-medium uppercase tracking-wide hover:text-primary"
           >
             {poem.collection.title}
           </Link>
@@ -32,17 +40,8 @@ export function PoemCard({ poem }: { poem: PoemListItem }) {
           {poem.excerpt}
         </p>
 
-        {poem.truncated ? (
-          <Link
-            href={`/poems/${poem.slug}`}
-            className="text-primary text-sm font-medium hover:underline"
-          >
-            Read more →
-          </Link>
-        ) : null}
-
         {poem.tags.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="relative z-10 flex flex-wrap gap-1.5">
             {poem.tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="secondary" asChild>
                 <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>

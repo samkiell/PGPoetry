@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, X, ChevronDown } from "lucide-react";
+import { Search, X, ChevronDown, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
   const searchParams = useSearchParams();
   const [value, setValue] = React.useState(query ?? "");
   const [tagsExpanded, setTagsExpanded] = React.useState(false);
+  const [pending, startTransition] = useTransition();
 
   // Keep the input in sync if the URL changes from elsewhere (e.g. back button).
   // Adjusting state during render (rather than in an effect) avoids an extra
@@ -42,7 +44,9 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
     }
     // Any filter change resets pagination.
     params.delete("page");
-    router.push(`${pathname}?${params.toString()}`);
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
   }
 
   return (
@@ -54,7 +58,11 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
         }}
         className="relative"
       >
-        <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        {pending ? (
+          <Loader2 className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2 animate-spin" />
+        ) : (
+          <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        )}
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -101,7 +109,7 @@ export function PoemsFilter({ tags, activeTag, query }: PoemsFilterProps) {
                     className={cn("cursor-pointer", active && "ring-1 ring-ring")}
                   >
                     {tag}
-                    <span className="opacity-60">{count}</span>
+                    <span className="ml-1 opacity-60">{count}</span>
                   </Badge>
                 </button>
               );

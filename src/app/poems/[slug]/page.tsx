@@ -99,7 +99,7 @@ export default async function PoemPage({ params }: { params: Params }) {
           {poem.title}
         </h1>
 
-        <div className="poem-meta mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+        <div className="poem-meta mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:gap-x-5">
           {poem.publishedAt ? <span>{formatDate(poem.publishedAt)}</span> : null}
           <span>
             <Clock className="mr-1 inline size-3 align-[-2px]" />
