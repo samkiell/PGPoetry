@@ -43,7 +43,7 @@ export default async function PoemsPage({
     const sp = new URLSearchParams();
     if (params.q) sp.set("q", params.q);
     if (params.tag) sp.set("tag", params.tag);
-    if (params.sort) sp.set("sort", params.sort);
+    if (sort === "popular") sp.set("sort", sort);
     sp.set("page", String(nextPage));
     return `/poems?${sp.toString()}`;
   }

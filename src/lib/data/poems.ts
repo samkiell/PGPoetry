@@ -114,14 +114,10 @@ export async function getPublishedPoems(
   const filter: QueryFilter<PoemDoc> = { ...PUBLISHED };
 
   if (opts.q?.trim()) {
-    // Indexed full-text search (title + content). Falls back to a tag regex via
-    // $or so a query that only matches a tag — which the text index doesn't
-    // cover — still surfaces results.
-    const q = opts.q.trim();
-    filter.$or = [
-      { $text: { $search: q } },
-      { tags: new RegExp(escapeRegExp(q), "i") },
-    ];
+    // Indexed full-text search over title + content, instead of an unanchored
+    // regex collection scan. Searching by tag is handled by the `tag` filter
+    // and the filter UI, so it doesn't need to be folded in here.
+    filter.$text = { $search: opts.q.trim() };
   }
   if (opts.tag?.trim()) {
     filter.tags = opts.tag.trim().toLowerCase();
@@ -223,8 +219,4 @@ export async function getAllTags(): Promise<{ tag: string; count: number }[]> {
     { $sort: { count: -1, _id: 1 } },
   ]);
   return rows.map((r) => ({ tag: r._id, count: r.count }));
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
