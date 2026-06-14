@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AvatarUpload } from "@/components/profile/avatar-upload";
 import {
   updateSettingsAction,
   updatePasswordAction,
@@ -17,10 +18,14 @@ import {
 export function SettingsForm({
   email,
   username,
+  name,
+  image,
   hasPassword,
 }: {
   email: string;
   username: string;
+  name: string;
+  image: string;
   hasPassword: boolean;
 }) {
   const router = useRouter();
@@ -66,8 +71,14 @@ export function SettingsForm({
 
   return (
     <div className="space-y-8">
-      {/* Account Settings */}
+      {/* Avatar */}
       <div>
+        <h3 className="mb-4 text-lg font-semibold">Profile photo</h3>
+        <AvatarUpload name={name} username={username} image={image} />
+      </div>
+
+      {/* Account Settings */}
+      <div className="border-t pt-8">
         <h3 className="mb-4 text-lg font-semibold">Account Settings</h3>
         <form action={settingsAction} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">

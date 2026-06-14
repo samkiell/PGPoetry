@@ -142,7 +142,7 @@ html.lenis body {
   font-size: 1.25rem;
   /* Tighter than prose: in verse the line is the unit, so keep stanzas
      cohesive rather than spaced out like a list. */
-  line-height: 1.65;
+  line-height: 1.4;
   letter-spacing: 0.01em;
   /* Weight 400 reads solid on the dark background; 300 looked thin. */
   font-weight: 400;
@@ -156,7 +156,7 @@ html.lenis body {
   }
 }
 .poem-content p {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1rem;
 }
 .poem-content p:last-child {
   margin-bottom: 0;

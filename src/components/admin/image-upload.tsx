@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function ImageUpload({
   value,
@@ -15,8 +16,13 @@ export function ImageUpload({
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false);
+  const [dragging, setDragging] = React.useState(false);
 
   async function handleFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please drop an image file.");
+      return;
+    }
     setUploading(true);
     try {
       const body = new FormData();
@@ -34,6 +40,13 @@ export function ImageUpload({
     } finally {
       setUploading(false);
     }
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) void handleFile(file);
   }
 
   return (
@@ -73,7 +86,16 @@ export function ImageUpload({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="border-input hover:bg-accent flex aspect-video flex-col items-center justify-center gap-2 rounded-md border border-dashed text-sm transition-colors"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+          className={cn(
+            "border-input flex aspect-video flex-col items-center justify-center gap-2 rounded-md border border-dashed text-sm transition-colors",
+            dragging ? "border-primary bg-accent" : "hover:bg-accent",
+          )}
         >
           {uploading ? (
             <Loader2 className="text-muted-foreground size-6 animate-spin" />
@@ -81,7 +103,11 @@ export function ImageUpload({
             <ImagePlus className="text-muted-foreground size-6" />
           )}
           <span className="text-muted-foreground">
-            {uploading ? "Uploading…" : "Upload a cover image"}
+            {uploading
+              ? "Uploading…"
+              : dragging
+                ? "Drop the image here"
+                : "Upload or drag an image here"}
           </span>
         </button>
       )}

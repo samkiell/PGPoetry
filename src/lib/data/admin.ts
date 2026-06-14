@@ -209,6 +209,7 @@ export interface AdminUserRow {
   name: string;
   username: string;
   email: string;
+  image: string;
   role: UserRole;
   createdAt: string;
   updatedAt: string;
@@ -230,7 +231,7 @@ function toISO(value: unknown, fallback: string): string {
 export async function getAllUsers(): Promise<AdminUserRow[]> {
   await connectDB();
   const users = await User.find()
-    .select("name username email role createdAt updatedAt")
+    .select("name username email image role createdAt updatedAt")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -246,6 +247,7 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
       name: user.name,
       username: user.username || "",
       email: user.email,
+      image: user.image || "",
       role: user.role,
       createdAt,
       updatedAt: toISO(user.updatedAt, createdAt),

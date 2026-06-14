@@ -33,6 +33,8 @@ export default async function SettingsPage() {
           <SettingsForm
             email={user.email}
             username={user.username || ""}
+            name={user.name || ""}
+            image={user.image || ""}
             hasPassword={!!user.password}
           />
         </CardContent>

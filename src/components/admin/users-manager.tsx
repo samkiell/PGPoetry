@@ -5,6 +5,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -66,7 +67,22 @@ export function UsersManager({ users }: { users: AdminUserRow[] }) {
           {users.map((user) => (
             <tr key={user.id} className="hover:bg-accent/50 transition-colors">
               <td className="px-4 py-3">
-                <span className="font-medium">{user.name || "—"}</span>
+                <div className="flex items-center gap-3">
+                  <Avatar className="size-8">
+                    {user.image ? (
+                      <AvatarImage
+                        src={user.image}
+                        alt={user.name || user.username}
+                      />
+                    ) : null}
+                    <AvatarFallback>
+                      {(user.name || user.username || "?")
+                        .charAt(0)
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">{user.name || "—"}</span>
+                </div>
               </td>
               <td className="px-4 py-3 text-muted-foreground">
                 @{user.username || "—"}

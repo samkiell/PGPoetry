@@ -81,6 +81,37 @@ export async function updateProfileAction(
   return { status: "success" };
 }
 
+const avatarSchema = z.object({
+  image: z
+    .string()
+    .trim()
+    .url("That doesn't look like a valid image URL.")
+    .or(z.literal("")),
+});
+
+export async function updateAvatarAction(
+  _prev: SettingsState,
+  formData: FormData,
+): Promise<SettingsState> {
+  const user = await getCurrentUser();
+  if (!user) return { status: "error", error: "You're not signed in." };
+
+  const parsed = avatarSchema.safeParse({ image: formData.get("image") ?? "" });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      error: parsed.error.issues[0]?.message ?? "Invalid image.",
+    };
+  }
+
+  await connectDB();
+  await User.updateOne({ _id: user.id }, { image: parsed.data.image });
+
+  revalidatePath("/profile");
+  revalidatePath("/profile/settings");
+  return { status: "success" };
+}
+
 export async function updateSettingsAction(
   _prev: SettingsState,
   formData: FormData,
