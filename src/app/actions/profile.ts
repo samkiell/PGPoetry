@@ -6,6 +6,8 @@ import bcryptjs from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { User } from "@/models/User";
+import { sendEmail } from "@/lib/email/send";
+import { PasswordChanged } from "@/lib/email/templates/password-changed";
 
 const profileSchema = z.object({
   name: z.string().trim().min(1, "Name can't be empty.").max(80),
@@ -168,6 +170,16 @@ export async function updatePasswordAction(
     { password: hashedPassword },
   );
 
+  // Security notice — fire-and-forget.
+  if (userWithPassword.email) {
+    void sendEmail({
+      to: userWithPassword.email,
+      subject: "Your PGpoetry password was changed",
+      react: PasswordChanged({ variant: "changed" }),
+      devPreview: "password changed notice",
+    });
+  }
+
   revalidatePath("/profile/settings");
   return { status: "success" };
 }
@@ -209,6 +221,16 @@ export async function setPasswordAction(
 
   const hashedPassword = await bcryptjs.hash(parsed.data.newPassword, 10);
   await User.updateOne({ _id: user.id }, { password: hashedPassword });
+
+  // Security notice — fire-and-forget so a mail hiccup never fails the action.
+  if (existing.email) {
+    void sendEmail({
+      to: existing.email,
+      subject: "Your PGpoetry password was set",
+      react: PasswordChanged({ variant: "set" }),
+      devPreview: "password set notice",
+    });
+  }
 
   revalidatePath("/profile/settings");
   return { status: "success" };
