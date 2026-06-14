@@ -29,6 +29,11 @@ export const env = {
 
   ADMIN_EMAIL: optional("ADMIN_EMAIL"),
 
+  RESEND_API_KEY: optional("RESEND_API_KEY"),
+  // Verified sender, e.g. "PGpoetry <noreply@yourdomain.com>". Falls back to
+  // Resend's shared onboarding sender, which only delivers to your own account.
+  EMAIL_FROM: optional("EMAIL_FROM", "PGpoetry <onboarding@resend.dev>"),
+
   SITE_URL: optional("NEXT_PUBLIC_SITE_URL", "http://localhost:3000"),
   SITE_NAME: optional("NEXT_PUBLIC_SITE_NAME", "PGpoetry"),
 } as const;
@@ -40,3 +45,5 @@ export const isGoogleAuthEnabled = Boolean(
 export const isCloudinaryEnabled = Boolean(
   env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET,
 );
+
+export const isEmailEnabled = Boolean(env.RESEND_API_KEY);

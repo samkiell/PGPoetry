@@ -3,8 +3,6 @@
 import * as React from "react";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +20,6 @@ export function SignupForm({
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [signInFailed, setSignInFailed] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const [state, formAction, pending] = useActionState<SignupState, FormData>(
@@ -30,26 +27,18 @@ export function SignupForm({
     { status: "idle" },
   );
 
-  // Once the account exists, we're signing the new reader straight in — keep the
-  // button in its loading state for the whole flow (until it fails and we bail).
-  const signingIn = state.status === "success" && !signInFailed;
+  const advancing = state.status === "verify";
 
-  // Sign the new reader in after the account is created (external-system sync).
+  // Account created → go verify the email before signing in. Pass the
+  // credentials along so the verify step can sign the reader in afterward.
   React.useEffect(() => {
-    if (state.status !== "success") return;
-    void signIn("credentials", { usernameOrEmail: email, password, redirect: false }).then(
-      (res) => {
-        if (!res || res.error) {
-          setSignInFailed(true);
-          toast.success("Account created — please log in.");
-          router.push("/login");
-          return;
-        }
-        router.push(callbackUrl);
-        router.refresh();
-      },
-    );
-  }, [state.status, email, password, callbackUrl, router]);
+    if (state.status !== "verify") return;
+    const params = new URLSearchParams({
+      email: state.email,
+      callbackUrl,
+    });
+    router.push(`/verify-email?${params.toString()}`);
+  }, [state, callbackUrl, router]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -128,10 +117,10 @@ export function SignupForm({
 
         <Button
           type="submit"
-          disabled={pending || signingIn}
+          disabled={pending || advancing}
           className="w-full"
         >
-          {pending || signingIn ? "Creating account…" : "Create account"}
+          {pending || advancing ? "Creating account…" : "Create account"}
         </Button>
       </form>
     </div>
