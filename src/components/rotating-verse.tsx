@@ -43,7 +43,7 @@ export function RotatingVerse() {
   return (
     <span
       className={cn(
-        "text-muted-foreground block min-h-[1.5em] text-xs font-medium uppercase tracking-[0.3em] transition-opacity duration-500 sm:text-sm",
+        "text-muted-foreground block min-h-[1.5em] text-xs font-medium uppercase tracking-[0.2em] transition-opacity duration-500 sm:text-sm sm:tracking-[0.3em]",
         visible ? "opacity-100" : "opacity-0",
       )}
     >

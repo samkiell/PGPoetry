@@ -22,16 +22,18 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero */}
-      <section className="flex flex-col items-center gap-6 pb-12 pt-10 text-center sm:pb-16 sm:pt-16">
-        <RotatingVerse />
-        <h1 className="font-serif text-4xl font-semibold leading-tight sm:text-6xl">
-          Read it. Feel it.<br className="hidden sm:block" /> Carry it.
-        </h1>
-        <p className="text-muted-foreground max-w-xl text-lg">
-          A minimalist, emotion-driven space for original poetry — and the
-          lines that find you when you need them.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+      <section className="flex flex-col items-center gap-8 pb-12 pt-10 text-center sm:gap-10 sm:pb-16 sm:pt-16">
+        <div className="flex flex-col items-center gap-4 sm:gap-6">
+          <RotatingVerse />
+          <h1 className="font-serif text-[2.5rem] font-semibold leading-[1.1] sm:text-6xl">
+            Read it. Feel it.<br className="hidden sm:block" /> Carry it.
+          </h1>
+          <p className="text-muted-foreground max-w-xl text-base sm:text-lg">
+            A minimalist, emotion-driven space for original poetry — and the
+            lines that find you when you need them.
+          </p>
+        </div>
+        <div className="flex w-full max-w-xs flex-col items-stretch gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
           <Button asChild size="lg">
             <Link href="/poems">
               Explore poems <ArrowRight className="size-4" />
