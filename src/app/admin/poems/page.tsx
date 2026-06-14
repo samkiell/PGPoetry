@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/empty-state";
 import { PoemRowActions } from "@/components/admin/poem-row-actions";
+import { PoemStatusSelect } from "@/components/admin/poem-status-select";
+import { PoemSearch } from "@/components/admin/poem-search";
 import { getAdminPoems } from "@/lib/data/admin";
 import { formatDate } from "@/lib/utils";
 import type { PoemStatus } from "@/models/Poem";
@@ -19,22 +20,24 @@ const FILTERS: { label: string; value?: PoemStatus }[] = [
   { label: "Scheduled", value: "scheduled" },
 ];
 
-const STATUS_VARIANT: Record<PoemStatus, "default" | "secondary" | "outline"> = {
-  published: "default",
-  draft: "secondary",
-  scheduled: "outline",
-};
-
 export default async function AdminPoemsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; q?: string }>;
 }) {
-  const { status } = await searchParams;
+  const { status, q } = await searchParams;
   const activeStatus = (["published", "draft", "scheduled"] as const).find(
     (s) => s === status,
   );
-  const poems = await getAdminPoems(activeStatus);
+  const poems = await getAdminPoems(activeStatus, q);
+
+  function filterHref(value?: PoemStatus): string {
+    const params = new URLSearchParams();
+    if (value) params.set("status", value);
+    if (q) params.set("q", q);
+    const qs = params.toString();
+    return qs ? `/admin/poems?${qs}` : "/admin/poems";
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,33 +50,42 @@ export default async function AdminPoemsPage({
         </Button>
       </div>
 
-      <div className="flex gap-1">
-        {FILTERS.map((filter) => {
-          const active = filter.value === activeStatus;
-          return (
-            <Link
-              key={filter.label}
-              href={filter.value ? `/admin/poems?status=${filter.value}` : "/admin/poems"}
-              className={
-                active
-                  ? "bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-sm font-medium"
-                  : "text-muted-foreground hover:bg-accent rounded-md px-3 py-1.5 text-sm font-medium"
-              }
-            >
-              {filter.label}
-            </Link>
-          );
-        })}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-1">
+          {FILTERS.map((filter) => {
+            const active = filter.value === activeStatus;
+            return (
+              <Link
+                key={filter.label}
+                href={filterHref(filter.value)}
+                className={
+                  active
+                    ? "bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-sm font-medium"
+                    : "text-muted-foreground hover:bg-accent rounded-md px-3 py-1.5 text-sm font-medium"
+                }
+              >
+                {filter.label}
+              </Link>
+            );
+          })}
+        </div>
+        <PoemSearch />
       </div>
 
       {poems.length === 0 ? (
         <EmptyState
-          title="No poems here"
-          description="Poems you write will show up in this list."
+          title={q ? "No matching poems" : "No poems here"}
+          description={
+            q
+              ? `Nothing matched “${q}”. Try a different search.`
+              : "Poems you write will show up in this list."
+          }
         >
-          <Button asChild size="sm" className="mt-2">
-            <Link href="/admin/poems/new">Write a poem</Link>
-          </Button>
+          {q ? null : (
+            <Button asChild size="sm" className="mt-2">
+              <Link href="/admin/poems/new">Write a poem</Link>
+            </Button>
+          )}
         </EmptyState>
       ) : (
         <div className="overflow-hidden rounded-lg border">
@@ -108,14 +120,12 @@ export default async function AdminPoemsPage({
                         <Star className="size-3.5 fill-primary text-primary" />
                       ) : null}
                     </div>
-                    <p className="text-muted-foreground text-xs sm:hidden">
-                      {poem.status}
-                    </p>
+                    <div className="mt-1 sm:hidden">
+                      <PoemStatusSelect poemId={poem.id} status={poem.status} />
+                    </div>
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
-                    <Badge variant={STATUS_VARIANT[poem.status]}>
-                      {poem.status}
-                    </Badge>
+                    <PoemStatusSelect poemId={poem.id} status={poem.status} />
                     {poem.status === "scheduled" && poem.scheduledFor ? (
                       <p className="text-muted-foreground mt-1 text-xs">
                         {formatDate(poem.scheduledFor)}

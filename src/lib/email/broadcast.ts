@@ -9,8 +9,8 @@ import { env } from "@/lib/env";
 
 /** Resend accepts up to 50 recipients per send; keep a margin. */
 const BATCH_SIZE = 45;
-/** How long the glimpse should be, in words. */
-const GLIMPSE_WORDS = 40;
+/** How long the glimpse should be, in words — just a teaser, not the poem. */
+const GLIMPSE_WORDS = 18;
 
 /**
  * Emails every reader that a poem has been published — once. Uses an atomic

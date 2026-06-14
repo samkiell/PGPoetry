@@ -81,9 +81,16 @@ export async function getAdminStats(): Promise<AdminStats> {
 
 export async function getAdminPoems(
   status?: PoemStatus,
+  query?: string,
 ): Promise<AdminPoemRow[]> {
   await connectDB();
-  const filter = status ? { status } : {};
+  const filter: Record<string, unknown> = status ? { status } : {};
+  const q = query?.trim();
+  if (q) {
+    // Match a word that starts with the query across title + content.
+    const rx = new RegExp("\\b" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    filter.$or = [{ title: rx }, { content: rx }];
+  }
   const docs = await Poem.find(filter)
     .sort({ updatedAt: -1 })
     .populate("collectionId", "title")

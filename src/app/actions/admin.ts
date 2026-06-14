@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { Poem } from "@/models/Poem";
+import { Poem, type PoemStatus } from "@/models/Poem";
 import { Collection } from "@/models/Collection";
 import { Comment } from "@/models/Comment";
 import { Like } from "@/models/Like";
@@ -143,6 +143,44 @@ export async function updatePoem(
     console.error("updatePoem", err);
     return { ok: false, error: "Couldn't update the poem." };
   }
+}
+
+export async function changePoemStatus(
+  id: string,
+  status: PoemStatus,
+): Promise<Result<{ status: PoemStatus }>> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+  if (!objectId.safeParse(id).success) {
+    return { ok: false, error: "Invalid poem id." };
+  }
+  if (!(["draft", "scheduled", "published"] as const).includes(status)) {
+    return { ok: false, error: "Invalid status." };
+  }
+
+  await connectDB();
+  const poem = await Poem.findById(id);
+  if (!poem) return { ok: false, error: "Poem not found." };
+
+  poem.status = status;
+  // Stamp publishedAt on first publish; clear it when pulled out of published.
+  if (status === "published") {
+    if (!poem.publishedAt) poem.publishedAt = new Date();
+  } else {
+    poem.publishedAt = null;
+  }
+  await poem.save();
+
+  // Broadcast on first publish. broadcastedAt keeps this idempotent.
+  if (poem.status === "published") {
+    const origin = await getRequestOrigin();
+    void broadcastNewPoem(String(poem._id), origin);
+  }
+
+  revalidatePath("/admin/poems");
+  revalidatePath(`/poems/${poem.slug}`);
+  revalidatePath("/poems");
+  return { ok: true, status };
 }
 
 export async function deletePoem(id: string): Promise<Result> {

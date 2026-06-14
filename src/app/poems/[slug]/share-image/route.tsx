@@ -60,11 +60,14 @@ export async function GET(
   const title = stripEmoji(poem.title);
 
   // Match the site exactly: Playfair Display for the title (font-serif),
-  // Cormorant @400 for the verse (.poem-content / --font-cormorant-gould).
-  const [logoData, playfair, cormorant] = await Promise.all([
+  // Cormorant @400 for the verse (.poem-content / --font-cormorant-gould), and
+  // Noto Sans Symbols 2 for the ❦ floral-heart ornament (the serif fonts don't
+  // include that glyph, so it would render as tofu otherwise).
+  const [logoData, playfair, cormorant, symbols] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "images", "pg_logo.png")),
     loadFont("Playfair+Display", 600),
     loadFont("Cormorant", 400),
+    loadFont("Noto+Sans+Symbols+2", 400),
   ]);
   const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
 
@@ -74,7 +77,16 @@ export async function GET(
   const fleuron = (
     <div style={{ display: "flex", alignItems: "center", gap: 24, margin: "56px 0" }}>
       <div style={{ width: 70, height: 1, background: t.rule }} />
-      <div style={{ width: 12, height: 12, background: t.accent, transform: "rotate(45deg)" }} />
+      <div
+        style={{
+          color: t.accent,
+          fontSize: 30,
+          fontFamily: "Noto Sans Symbols 2",
+          lineHeight: 1,
+        }}
+      >
+        ❦
+      </div>
       <div style={{ width: 70, height: 1, background: t.rule }} />
     </div>
   );
@@ -140,6 +152,7 @@ export async function GET(
       fonts: [
         { name: "Playfair Display", data: playfair, weight: 600, style: "normal" },
         { name: "Cormorant", data: cormorant, weight: 400, style: "normal" },
+        { name: "Noto Sans Symbols 2", data: symbols, weight: 400, style: "normal" },
       ],
     },
   );
