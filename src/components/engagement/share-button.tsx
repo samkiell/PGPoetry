@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Check, ImageDown, Link2, Loader2, Share2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import {
+  Check,
+  Download,
+  Image as ImageIcon,
+  Link2,
+  Loader2,
+  Share2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +29,9 @@ export function ShareButton({
   url: string;
   slug: string;
 }) {
+  const { resolvedTheme } = useTheme();
   const [copied, setCopied] = React.useState(false);
-  const [imaging, setImaging] = React.useState(false);
+  const [busy, setBusy] = React.useState<null | "share" | "download">(null);
 
   const text = encodeURIComponent(`${title} — PGpoetry`);
   const encodedUrl = encodeURIComponent(url);
@@ -56,41 +65,60 @@ export function ShareButton({
     }
   }
 
-  async function shareAsImage() {
-    if (imaging) return;
-    setImaging(true);
-    try {
-      const res = await fetch(`/poems/${slug}/share-image`);
-      if (!res.ok) throw new Error("render failed");
-      const blob = await res.blob();
-      const file = new File([blob], `${slug}.png`, { type: "image/png" });
+  // Render the poem image for the current theme.
+  async function fetchImage(): Promise<Blob> {
+    const theme = resolvedTheme === "light" ? "light" : "dark";
+    const res = await fetch(`/poems/${slug}/share-image?theme=${theme}`);
+    if (!res.ok) throw new Error("render failed");
+    return res.blob();
+  }
 
-      // Prefer the OS share sheet (with the image) when it can handle files.
+  async function shareImage() {
+    if (busy) return;
+    setBusy("share");
+    try {
+      const blob = await fetchImage();
+      const file = new File([blob], `${slug}.png`, { type: "image/png" });
       if (
         typeof navigator !== "undefined" &&
         navigator.canShare?.({ files: [file] })
       ) {
         await navigator.share({ files: [file], title });
-        return;
+      } else {
+        // No file-share support (most desktops) — fall back to a download.
+        triggerDownload(blob);
+        toast.success("Image downloaded");
       }
-
-      // Otherwise download the image.
-      const objectUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = `${slug}.png`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(objectUrl);
-      toast.success("Image downloaded");
     } catch (err) {
-      // AbortError = user dismissed the native share sheet; not an error.
-      if (err instanceof Error && err.name === "AbortError") return;
+      if (err instanceof Error && err.name === "AbortError") return; // dismissed
       toast.error("Couldn't create the image");
     } finally {
-      setImaging(false);
+      setBusy(null);
     }
+  }
+
+  async function downloadImage() {
+    if (busy) return;
+    setBusy("download");
+    try {
+      triggerDownload(await fetchImage());
+      toast.success("Image downloaded");
+    } catch {
+      toast.error("Couldn't create the image");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function triggerDownload(blob: Blob) {
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = `${slug}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
   }
 
   return (
@@ -115,18 +143,32 @@ export function ShareButton({
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
-            // Keep the menu logic from closing before the async work starts.
+            // Don't let the menu close before the async work starts.
             e.preventDefault();
-            shareAsImage();
+            shareImage();
           }}
-          disabled={imaging}
+          disabled={busy !== null}
         >
-          {imaging ? (
+          {busy === "share" ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
-            <ImageDown className="size-4" />
+            <ImageIcon className="size-4" />
           )}
-          {imaging ? "Creating…" : "Share as image"}
+          {busy === "share" ? "Creating…" : "Share image"}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            downloadImage();
+          }}
+          disabled={busy !== null}
+        >
+          {busy === "download" ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Download className="size-4" />
+          )}
+          {busy === "download" ? "Creating…" : "Download image"}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {targets.map((t) => (

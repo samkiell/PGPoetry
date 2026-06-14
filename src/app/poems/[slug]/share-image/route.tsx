@@ -10,35 +10,72 @@ export const runtime = "nodejs";
 const WIDTH = 1080;
 const HEIGHT = 1350; // 4:5 portrait — friendly for IG/WhatsApp/X.
 
+// Palettes mirror the site's light/dark tokens (Satori needs hex, not oklch).
+const THEMES = {
+  dark: { bg: "#181c24", fg: "#e8eaee", muted: "#cdd2db", rule: "#3a4150", accent: "#e35d6a" },
+  light: { bg: "#fdfdfb", fg: "#2b3242", muted: "#4a5160", rule: "#d9d9d2", accent: "#e74c3c" },
+} as const;
+
+// Strip emoji / pictographs — Satori has no emoji font, so they'd render as
+// tofu. The image is a typographic piece; emoji don't belong in it anyway.
+function stripEmoji(text: string): string {
+  return text
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+// Google Fonts hands back a .ttf (Satori-compatible) when asked without a
+// modern UA. Cached across requests via the fetch cache.
+async function loadFont(family: string, weight: number): Promise<ArrayBuffer> {
+  const css = await fetch(
+    `https://fonts.googleapis.com/css2?family=${family}:wght@${weight}&display=swap`,
+    { headers: { "User-Agent": "Mozilla/4.0" } },
+  ).then((r) => r.text());
+  const url = css.match(/https:\/\/[^)]+\.ttf/)?.[0];
+  if (!url) throw new Error(`No TTF for ${family}`);
+  return fetch(url).then((r) => r.arrayBuffer());
+}
+
 /**
  * Renders just the poem — title, verse, and the PG monogram — as a portrait
- * PNG for sharing. Deliberately omits the date and reading time.
+ * PNG for sharing/downloading. Omits the date and reading time. Honours the
+ * current theme via `?theme=light|dark` and uses the site's serif fonts.
  */
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
   const poem = await getPoemBySlug(slug);
-  if (!poem) {
-    return new Response("Not found", { status: 404 });
-  }
+  if (!poem) return new Response("Not found", { status: 404 });
 
-  // poem.content is already signature-stripped by the data layer; split it into
-  // display lines the same way the page does.
-  const lines = htmlToPlainText(poemContentToHtml(poem.content))
+  const themeParam = new URL(req.url).searchParams.get("theme");
+  const t = themeParam === "light" ? THEMES.light : THEMES.dark;
+
+  const lines = stripEmoji(htmlToPlainText(poemContentToHtml(poem.content)))
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
+  const title = stripEmoji(poem.title);
 
-  // Embed the logo inline — ImageResponse can't fetch /public by path.
-  const logoData = await readFile(
-    path.join(process.cwd(), "public", "images", "pg_logo.png"),
-  );
+  const [logoData, playfair, cormorant] = await Promise.all([
+    readFile(path.join(process.cwd(), "public", "images", "pg_logo.png")),
+    loadFont("Playfair+Display", 600),
+    loadFont("Cormorant+Garamond", 500),
+  ]);
   const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
 
   // Scale the verse down a touch when a poem runs long so it still fits.
-  const verseSize = lines.length > 16 ? 30 : lines.length > 10 ? 36 : 42;
+  const verseSize = lines.length > 16 ? 34 : lines.length > 10 ? 40 : 46;
+
+  const fleuron = (
+    <div style={{ display: "flex", alignItems: "center", gap: 24, margin: "56px 0" }}>
+      <div style={{ width: 70, height: 1, background: t.rule }} />
+      <div style={{ width: 12, height: 12, background: t.accent, transform: "rotate(45deg)" }} />
+      <div style={{ width: 70, height: 1, background: t.rule }} />
+    </div>
+  );
 
   return new ImageResponse(
     (
@@ -50,58 +87,35 @@ export async function GET(
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0f1420",
+          background: t.bg,
           padding: "90px 80px",
-          fontFamily: "Georgia, serif",
         }}
       >
-        {/* Title */}
         <div
           style={{
-            color: "#f8fafc",
-            fontSize: 76,
-            fontWeight: 500,
+            color: t.fg,
+            fontSize: 84,
+            fontFamily: "Playfair Display",
             lineHeight: 1.1,
             textAlign: "center",
             maxWidth: "100%",
           }}
         >
-          {poem.title}
+          {title}
         </div>
 
-        {/* Fleuron */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 24,
-            margin: "56px 0",
-          }}
-        >
-          <div style={{ width: 70, height: 1, background: "#334155" }} />
-          {/* Diamond drawn as a rotated square — no font glyph needed, so it
-              always renders in Satori (Unicode ornaments show as tofu). */}
-          <div
-            style={{
-              width: 12,
-              height: 12,
-              background: "#e35d6a",
-              transform: "rotate(45deg)",
-            }}
-          />
-          <div style={{ width: 70, height: 1, background: "#334155" }} />
-        </div>
+        {fleuron}
 
-        {/* Verse */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: Math.round(verseSize * 0.5),
-            color: "#e2e8f0",
+            gap: Math.round(verseSize * 0.45),
+            color: t.muted,
             fontSize: verseSize,
-            lineHeight: 1.4,
+            fontFamily: "Cormorant Garamond",
+            lineHeight: 1.35,
             textAlign: "center",
           }}
         >
@@ -112,34 +126,19 @@ export async function GET(
           ))}
         </div>
 
-        {/* Fleuron */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 24,
-            margin: "56px 0 40px",
-          }}
-        >
-          <div style={{ width: 70, height: 1, background: "#334155" }} />
-          {/* Diamond drawn as a rotated square — no font glyph needed, so it
-              always renders in Satori (Unicode ornaments show as tofu). */}
-          <div
-            style={{
-              width: 12,
-              height: 12,
-              background: "#e35d6a",
-              transform: "rotate(45deg)",
-            }}
-          />
-          <div style={{ width: 70, height: 1, background: "#334155" }} />
-        </div>
+        {fleuron}
 
-        {/* PG monogram signature */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logoSrc} width={84} height={84} alt="PGpoetry" />
       </div>
     ),
-    { width: WIDTH, height: HEIGHT },
+    {
+      width: WIDTH,
+      height: HEIGHT,
+      fonts: [
+        { name: "Playfair Display", data: playfair, weight: 600, style: "normal" },
+        { name: "Cormorant Garamond", data: cormorant, weight: 500, style: "normal" },
+      ],
+    },
   );
 }
