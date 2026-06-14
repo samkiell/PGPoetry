@@ -32,7 +32,10 @@ const cormorant = Cormorant_Garamond({
 
 const cormorantLight = Cormorant({
   subsets: ["latin"],
-  weight: ["300"],
+  // Load 400/500 too so `.poem-content`'s font-weight:400 uses the real
+  // typeface (matching the share image) instead of a synthesised weight.
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
   variable: "--font-cormorant-gould",
   display: "swap",
 });
