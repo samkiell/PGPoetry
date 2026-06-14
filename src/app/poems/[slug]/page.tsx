@@ -95,7 +95,7 @@ export default async function PoemPage({ params }: { params: Params }) {
 
       {/* Title */}
       <header className="text-center">
-        <h1 className="font-serif text-4xl font-medium leading-[1.1] tracking-tight sm:text-6xl">
+        <h1 className="font-serif text-3xl font-medium leading-[1.1] tracking-tight sm:text-6xl">
           {poem.title}
         </h1>
 
