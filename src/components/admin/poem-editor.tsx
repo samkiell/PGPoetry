@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
-import { ImageUpload } from "@/components/admin/image-upload";
 import { TagInput } from "@/components/admin/tag-input";
 import { createPoem, updatePoem, type PoemInput } from "@/app/actions/admin";
 import {
@@ -55,7 +54,6 @@ export function PoemEditor({
   const [status, setStatus] = React.useState<PoemStatus>(
     poem?.status ?? "draft",
   );
-  const [coverImage, setCoverImage] = React.useState(poem?.coverImage ?? "");
   const [collectionId, setCollectionId] = React.useState(
     poem?.collectionId ?? NO_COLLECTION,
   );
@@ -84,7 +82,7 @@ export function PoemEditor({
       tags,
       featured,
       status,
-      coverImage,
+      coverImage: poem?.coverImage ?? "",
       collectionId: collectionId === NO_COLLECTION ? null : collectionId,
       scheduledFor:
         status === "scheduled" && scheduledFor
@@ -212,15 +210,6 @@ export function PoemEditor({
                   ? "Save changes"
                   : "Create poem"}
             </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Cover image</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ImageUpload value={coverImage} onChange={setCoverImage} />
           </CardContent>
         </Card>
 
