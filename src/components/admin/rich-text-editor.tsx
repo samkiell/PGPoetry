@@ -15,7 +15,7 @@ import {
   Undo,
   Redo,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, poemContentToHtml } from "@/lib/utils";
 
 function ToolbarButton({
   onClick,
@@ -139,7 +139,10 @@ export function RichTextEditor({
         heading: { levels: [2, 3] },
       }),
     ],
-    content: value,
+    // Normalise to HTML before Tiptap parses it. Plain-text poems use single
+    // `\n` for line breaks, which Tiptap would otherwise collapse into spaces —
+    // poemContentToHtml turns those into <br>/<p> so the verse keeps its shape.
+    content: poemContentToHtml(value),
     editorProps: {
       attributes: {
         class:
