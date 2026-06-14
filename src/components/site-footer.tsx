@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCurrentUser } from "@/lib/session";
 import { env } from "@/lib/env";
 
@@ -94,8 +95,15 @@ export async function SiteFooter() {
               href="https://samkiel.tech/agency"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-[#ccff00] transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-1 font-semibold text-[#ccff00] transition-colors hover:text-foreground"
             >
+              <Image
+                src="/images/SAMKIEL_ICON.png"
+                alt="SAMKIEL logo"
+                width={16}
+                height={16}
+                className="h-[1em] w-auto"
+              />
               SAMKIEL
             </a>
           </p>
