@@ -61,5 +61,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         console.error("Error populating Google OAuth user fields:", error);
       }
     },
+    async signIn({ user }) {
+      // Alert on sign-ins from new devices. Best-effort; never blocks auth.
+      if (!user?.id) return;
+      try {
+        const { recordSignInAndAlert } = await import("@/lib/security-alerts");
+        await recordSignInAndAlert(user.id);
+      } catch (error) {
+        console.error("Error recording sign-in alert:", error);
+      }
+    },
   },
 });

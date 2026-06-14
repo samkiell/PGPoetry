@@ -5,9 +5,11 @@ import { registerUser } from "@/lib/auth-credentials";
 import { issueToken, verifyCode, CODE_TTL_MINUTES } from "@/lib/auth-tokens";
 import { sendEmail } from "@/lib/email/send";
 import { VerifyEmail } from "@/lib/email/templates/verify-email";
+import { Welcome } from "@/lib/email/templates/welcome";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { rateLimit, rateLimitByIp } from "@/lib/rate-limit";
+import { env } from "@/lib/env";
 
 const TEN_MIN = 10 * 60_000;
 
@@ -115,6 +117,20 @@ export async function verifyEmailAction(
     { email: email.data.toLowerCase() },
     { $set: { emailVerified: new Date() } },
   );
+
+  // Onboarding welcome — fire-and-forget so it never blocks verification.
+  const verified = await User.findOne({ email: email.data.toLowerCase() })
+    .select("name")
+    .lean();
+  void sendEmail({
+    to: email.data,
+    subject: "Welcome to PGpoetry",
+    react: Welcome({
+      name: verified?.name ?? "",
+      poemsUrl: `${env.SITE_URL}/poems`,
+    }),
+    devPreview: "welcome email",
+  });
 
   return { status: "success" };
 }

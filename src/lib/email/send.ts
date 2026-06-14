@@ -55,3 +55,48 @@ export async function sendEmail({
 
   return { ok: true };
 }
+
+interface SendBroadcastArgs {
+  /** Recipients, hidden from one another. Max ~50 per call (Resend limit). */
+  bcc: string[];
+  subject: string;
+  react: ReactElement;
+  devPreview?: string;
+}
+
+/**
+ * Sends one email to many recipients via BCC, so they never see each other's
+ * addresses. `to` is set to the sender itself (a common pattern for BCC-only
+ * blasts). Same dev-fallback behaviour as sendEmail.
+ */
+export async function sendBroadcast({
+  bcc,
+  subject,
+  react,
+  devPreview,
+}: SendBroadcastArgs): Promise<SendResult> {
+  if (bcc.length === 0) return { ok: true };
+
+  if (!resend) {
+    console.info(
+      `[email] (disabled) would broadcast "${subject}" to ${bcc.length} recipient(s)` +
+        (devPreview ? ` — ${devPreview}` : ""),
+    );
+    return { ok: true };
+  }
+
+  const { error } = await resend.emails.send({
+    from: env.EMAIL_FROM,
+    to: env.EMAIL_FROM,
+    bcc,
+    subject,
+    react,
+  });
+
+  if (error) {
+    console.error("[email] broadcast failed:", error);
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}

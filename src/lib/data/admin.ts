@@ -166,10 +166,28 @@ export async function getTopPoems(): Promise<{
 export async function publishDuePoems(): Promise<number> {
   await connectDB();
   const now = new Date();
+
+  // Capture which poems are about to go live so we can broadcast each one.
+  const due = await Poem.find({
+    status: "scheduled",
+    scheduledFor: { $lte: now },
+  })
+    .select("_id")
+    .lean();
+
+  if (due.length === 0) return 0;
+
   const result = await Poem.updateMany(
     { status: "scheduled", scheduledFor: { $lte: now } },
     { $set: { status: "published", publishedAt: now } },
   );
+
+  // Announce each newly published poem. The broadcast is idempotent.
+  const { broadcastNewPoem } = await import("@/lib/email/broadcast");
+  for (const poem of due) {
+    void broadcastNewPoem(String(poem._id));
+  }
+
   return result.modifiedCount ?? 0;
 }
 

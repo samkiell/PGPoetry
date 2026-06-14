@@ -15,6 +15,8 @@ export interface PoemDoc {
   publishedAt: Date | null;
   /** For status "scheduled" — the cron/check publishes once this passes. */
   scheduledFor: Date | null;
+  /** Set once the "new poem" broadcast email has been sent — prevents resends. */
+  broadcastedAt: Date | null;
   /** Cloudinary secure URL for the cover/thumbnail image. */
   coverImage: string;
   /** Optional collection/series this poem belongs to. */
@@ -56,6 +58,7 @@ const poemSchema = new Schema<PoemDoc>(
     },
     publishedAt: { type: Date, default: null },
     scheduledFor: { type: Date, default: null },
+    broadcastedAt: { type: Date, default: null },
     coverImage: { type: String, trim: true, default: "" },
     collectionId: {
       type: Schema.Types.ObjectId,

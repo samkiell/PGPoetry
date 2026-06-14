@@ -18,6 +18,8 @@ export interface UserDoc {
   password?: string;
   role: UserRole;
   bio: string;
+  /** SHA-256 fingerprints of devices we've already alerted a sign-in for. */
+  knownDevices: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +40,7 @@ const userSchema = new Schema<UserDoc>(
     password: { type: String, select: false },
     role: { type: String, enum: ["reader", "writer", "admin"], default: "reader" },
     bio: { type: String, trim: true, maxlength: 280, default: "" },
+    knownDevices: { type: [String], default: [] },
   },
   { timestamps: true, collection: "users" },
 );

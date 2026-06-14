@@ -10,6 +10,7 @@ import {
 import { updatePassword } from "@/lib/auth-credentials";
 import { sendEmail } from "@/lib/email/send";
 import { ResetPassword } from "@/lib/email/templates/reset-password";
+import { ResetComplete } from "@/lib/email/templates/reset-complete";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { env } from "@/lib/env";
@@ -161,6 +162,14 @@ export async function resetPasswordAction(
   if (!updated) {
     return { status: "error", error: "We couldn't find that account." };
   }
+
+  // Confirmation that the reset succeeded. Fire-and-forget.
+  void sendEmail({
+    to: verify.identifier,
+    subject: "Your PGpoetry password was reset",
+    react: ResetComplete(),
+    devPreview: "reset complete notice",
+  });
 
   return { status: "success" };
 }

@@ -9,6 +9,9 @@ import { Collection } from "@/models/Collection";
 import { Comment } from "@/models/Comment";
 import { Like } from "@/models/Like";
 import { Favorite } from "@/models/Favorite";
+import { sendEmail } from "@/lib/email/send";
+import { AccountDeleted } from "@/lib/email/templates/account-deleted";
+import { broadcastNewPoem } from "@/lib/email/broadcast";
 
 type Result<T = unknown> = ({ ok: true } & T) | { ok: false; error: string };
 
@@ -68,6 +71,12 @@ export async function createPoem(
     });
     await poem.save(); // pre hooks set slug + publishedAt
 
+    // Tell readers about a brand-new published poem. The broadcast is
+    // idempotent (guarded by broadcastedAt), so this is safe to call directly.
+    if (poem.status === "published") {
+      void broadcastNewPoem(String(poem._id));
+    }
+
     revalidatePath("/admin/poems");
     revalidatePath("/poems");
     return { ok: true, id: String(poem._id) };
@@ -112,6 +121,12 @@ export async function updatePoem(
     // If it's pulled back out of "published", clear the timestamp.
     if (data.status !== "published") poem.publishedAt = null;
     await poem.save();
+
+    // Broadcast on first publish. broadcastedAt makes this idempotent, so an
+    // edit to an already-announced poem won't re-email anyone.
+    if (poem.status === "published") {
+      void broadcastNewPoem(String(poem._id));
+    }
 
     revalidatePath("/admin/poems");
     revalidatePath(`/poems/${poem.slug}`);
@@ -305,6 +320,10 @@ export async function removeUser(userId: string): Promise<Result> {
   const user = await User.findById(userId);
   if (!user) return { ok: false, error: "User not found." };
 
+  // Capture contact details before the row is gone.
+  const deletedEmail = user.email;
+  const deletedName = user.name ?? "";
+
   // Delete user and all their related data
   await Promise.all([
     User.deleteOne({ _id: userId }),
@@ -312,6 +331,16 @@ export async function removeUser(userId: string): Promise<Result> {
     Like.deleteMany({ user: userId }),
     Favorite.deleteMany({ user: userId }),
   ]);
+
+  // Confirmation to the (now former) account holder. Fire-and-forget.
+  if (deletedEmail) {
+    void sendEmail({
+      to: deletedEmail,
+      subject: "Your PGpoetry account has been deleted",
+      react: AccountDeleted({ name: deletedName }),
+      devPreview: `account deleted: ${deletedEmail}`,
+    });
+  }
 
   revalidatePath("/admin/users");
   return { ok: true };

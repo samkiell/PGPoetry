@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/session";
 import { User } from "@/models/User";
 import { sendEmail } from "@/lib/email/send";
 import { PasswordChanged } from "@/lib/email/templates/password-changed";
+import { EmailChanged } from "@/lib/email/templates/email-changed";
 
 const profileSchema = z.object({
   name: z.string().trim().min(1, "Name can't be empty.").max(80),
@@ -122,10 +123,31 @@ export async function updateSettingsAction(
     }
   }
 
+  const emailChanged = parsed.data.email !== user.email;
+
   await User.updateOne(
     { _id: user.id },
     { email: parsed.data.email, username: parsed.data.username },
   );
+
+  // Notify BOTH addresses on an email change, so the original owner is alerted
+  // even if an attacker is moving the account. Fire-and-forget.
+  if (emailChanged) {
+    const oldEmail = user.email;
+    const newEmail = parsed.data.email;
+    void sendEmail({
+      to: oldEmail,
+      subject: "Your PGpoetry email was changed",
+      react: EmailChanged({ oldEmail, newEmail, recipient: "old" }),
+      devPreview: `email changed ${oldEmail} -> ${newEmail} (to old)`,
+    });
+    void sendEmail({
+      to: newEmail,
+      subject: "Your PGpoetry email was changed",
+      react: EmailChanged({ oldEmail, newEmail, recipient: "new" }),
+      devPreview: `email changed ${oldEmail} -> ${newEmail} (to new)`,
+    });
+  }
 
   revalidatePath("/profile");
   revalidatePath("/profile/settings");
