@@ -80,7 +80,7 @@ export default async function PoemPage({ params }: { params: Params }) {
   });
 
   return (
-    <article className="poem-page mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24">
+    <article className="poem-page mx-auto max-w-2xl px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-24">
       {/* Collection eyebrow */}
       {poem.collection ? (
         <div className="reading-hide mb-6 text-center">
@@ -130,7 +130,7 @@ export default async function PoemPage({ params }: { params: Params }) {
         dangerouslySetInnerHTML={{ __html: poemContentToHtml(poem.content) }}
       />
 
-      <Fleuron />
+      <Fleuron className="my-6" />
 
       {/* Signature */}
       <p className="text-muted-foreground text-center font-serif text-sm italic">
@@ -139,7 +139,7 @@ export default async function PoemPage({ params }: { params: Params }) {
 
       {/* Tags (kept visible in reading mode — they're part of the poem framing) */}
       {poem.tags.length > 0 ? (
-        <div className="reading-hide mt-12 flex flex-wrap justify-center gap-2">
+        <div className="reading-hide mt-6 flex flex-wrap justify-center gap-2">
           {poem.tags.map((tag) => (
             <Badge key={tag} variant="secondary" asChild>
               <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
@@ -149,7 +149,7 @@ export default async function PoemPage({ params }: { params: Params }) {
       ) : null}
 
       {/* Engagement — like, views, save, share on one line */}
-      <div className="reading-hide mt-10 flex flex-wrap items-center justify-center gap-2 border-t pt-8">
+      <div className="reading-hide mt-8 flex flex-wrap items-center justify-center gap-2 border-t pt-6">
         <LikeButton
           poemId={poem.id}
           initialLiked={engagement.liked}

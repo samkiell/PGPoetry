@@ -62,7 +62,7 @@ export function ReadingModeToggle() {
               aria-label="Exit reading mode"
             >
               <X className="size-4" />
-              Exit reading mode
+              <span className="hidden sm:inline">Exit reading mode</span>
             </Button>,
             document.body,
           )
