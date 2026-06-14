@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RotatingVerse } from "@/components/rotating-verse";
 import { PoemCard } from "@/components/poem-card";
 import { EmptyState } from "@/components/empty-state";
 import { getFeaturedPoems, getLatestPoems } from "@/lib/data/poems";
@@ -22,9 +23,7 @@ export default async function HomePage() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero */}
       <section className="flex flex-col items-center gap-6 py-20 text-center sm:py-28">
-        <span className="text-muted-foreground inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.3em]">
-          <Sparkles className="size-3.5" /> PGpoetry
-        </span>
+        <RotatingVerse />
         <h1 className="font-serif text-4xl font-semibold leading-tight sm:text-6xl">
           Every verse, a<br className="hidden sm:block" /> priceless gift.
         </h1>
