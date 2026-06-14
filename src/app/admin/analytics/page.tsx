@@ -1,16 +1,34 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Eye, Heart } from "lucide-react";
+import {
+  Eye,
+  Heart,
+  MessageSquare,
+  Users,
+  Bookmark,
+  FileText,
+  TrendingUp,
+  Hash,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
-import { getTopPoems } from "@/lib/data/admin";
+import { TrendChart, BarList } from "@/components/admin/analytics-charts";
+import { getAnalytics } from "@/lib/data/admin";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Analytics" };
 
 export default async function AdminAnalyticsPage() {
-  const { topViewed, topLiked } = await getTopPoems();
-  const hasData = topViewed.length > 0;
+  const a = await getAnalytics();
+  const hasData = a.totals.published > 0 || a.totals.views > 0;
+
+  const stats = [
+    { label: "Published", value: a.totals.published, icon: FileText },
+    { label: "Total views", value: a.totals.views, icon: Eye },
+    { label: "Total likes", value: a.totals.likes, icon: Heart },
+    { label: "Comments", value: a.totals.comments, icon: MessageSquare },
+    { label: "Readers", value: a.totals.readers, icon: Users },
+    { label: "Favorites", value: a.totals.favorites, icon: Bookmark },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -19,79 +37,127 @@ export default async function AdminAnalyticsPage() {
       {!hasData ? (
         <EmptyState
           title="No data yet"
-          description="Once poems are published and readers start engaging, you'll see your top poems here."
+          description="Once poems are published and readers start engaging, you'll see trends and top poems here."
         />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <>
+          {/* Headline stats */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {stats.map((s) => (
+              <Card key={s.label}>
+                <CardContent className="flex flex-col gap-1 py-4">
+                  <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+                    <s.icon className="size-3.5" /> {s.label}
+                  </span>
+                  <span className="text-2xl font-semibold tabular-nums">
+                    {s.value.toLocaleString()}
+                  </span>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Engagement rates */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <RateCard
+              label="Like rate"
+              value={`${a.rates.likePerView}%`}
+              hint="likes per view"
+            />
+            <RateCard
+              label="Comment rate"
+              value={`${a.rates.commentPerView}%`}
+              hint="comments per view"
+            />
+            <RateCard
+              label="New readers"
+              value={`+${a.last30.signups.toLocaleString()}`}
+              hint="in the last 30 days"
+            />
+          </div>
+
+          {/* Activity trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="size-4" /> Most viewed
+              <CardTitle className="flex items-center gap-2 text-base">
+                <TrendingUp className="size-4" /> Engagement over time
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ol className="flex flex-col gap-2">
-                {topViewed.map((poem, i) => (
-                  <li
-                    key={poem.slug}
-                    className="flex items-center justify-between gap-3 text-sm"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="text-muted-foreground w-4 text-right">
-                        {i + 1}
-                      </span>
-                      <Link
-                        href={`/poems/${poem.slug}`}
-                        target="_blank"
-                        className="truncate hover:text-primary"
-                      >
-                        {poem.title}
-                      </Link>
-                    </span>
-                    <span className="text-muted-foreground shrink-0">
-                      {poem.views.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ol>
+              <TrendChart series={a.series} />
+              <p className="text-muted-foreground mt-4 text-xs">
+                {a.last30.likes.toLocaleString()} likes ·{" "}
+                {a.last30.comments.toLocaleString()} comments in the last 30 days
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="size-4" /> Most liked
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ol className="flex flex-col gap-2">
-                {topLiked.map((poem, i) => (
-                  <li
-                    key={poem.slug}
-                    className="flex items-center justify-between gap-3 text-sm"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="text-muted-foreground w-4 text-right">
-                        {i + 1}
-                      </span>
-                      <Link
-                        href={`/poems/${poem.slug}`}
-                        target="_blank"
-                        className="truncate hover:text-primary"
-                      >
-                        {poem.title}
-                      </Link>
-                    </span>
-                    <span className="text-muted-foreground shrink-0">
-                      {poem.likes.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Top poems + top tags */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Eye className="size-4" /> Top poems
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BarList
+                  items={a.topPoems.map((p) => ({
+                    label: p.title,
+                    value: p.views,
+                    href: `/poems/${p.slug}`,
+                    sub: `${p.likes.toLocaleString()} ♥`,
+                  }))}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Hash className="size-4" /> Top tags by likes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {a.topTags.length > 0 ? (
+                  <BarList
+                    items={a.topTags.map((t) => ({
+                      label: t.tag,
+                      value: t.likes,
+                      href: `/poems?tag=${encodeURIComponent(t.tag)}`,
+                      sub: `${t.poems} ${t.poems === 1 ? "poem" : "poems"}`,
+                    }))}
+                  />
+                ) : (
+                  <p className="text-muted-foreground text-sm">
+                    Tag your poems to see which themes resonate.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
     </div>
+  );
+}
+
+function RateCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
+  return (
+    <Card>
+      <CardContent className="py-4">
+        <p className="text-muted-foreground text-xs">{label}</p>
+        <p className="mt-1 text-3xl font-semibold tabular-nums">{value}</p>
+        <p className="text-muted-foreground mt-0.5 text-xs">{hint}</p>
+      </CardContent>
+    </Card>
   );
 }
