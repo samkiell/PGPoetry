@@ -93,23 +93,16 @@ export async function toggleFavorite(
   const poem = await Poem.exists({ _id: poemId });
   if (!poem) return { ok: false, error: "Poem not found." };
 
-  const existing = await Favorite.findOne({ user: user.id, poem: poemId });
-  if (existing) {
-    await existing.deleteOne();
+  // Toggle atomically on the (user, poem) pair: delete if present, create if
+  // not. Using deleteOne's result tells us which way we toggled without a
+  // separate findOne race.
+  const deleted = await Favorite.deleteOne({ user: user.id, poem: poemId });
+  if (deleted.deletedCount > 0) {
     revalidatePath("/profile/favorites");
     return { ok: true, favorited: false };
   }
 
-  try {
-    await Favorite.create({ user: user.id, poem: poemId });
-  } catch (error: unknown) {
-    // Handle duplicate key error gracefully
-    if (error instanceof Error && error.message.includes("E11000")) {
-      return { ok: true, favorited: true };
-    }
-    throw error;
-  }
-
+  await Favorite.create({ user: user.id, poem: poemId });
   revalidatePath("/profile/favorites");
   return { ok: true, favorited: true };
 }
