@@ -42,12 +42,13 @@ export function LikeButton({
   return (
     <Button
       variant={liked ? "default" : "outline"}
-      size="sm"
+      size="lg"
       onClick={onClick}
       disabled={pending}
       aria-pressed={liked}
+      className="gap-2 text-base"
     >
-      <Heart className={cn("size-4", liked && "fill-current")} />
+      <Heart className={cn("size-5", liked && "fill-current")} />
       {count}
       <span className="sr-only">likes</span>
     </Button>

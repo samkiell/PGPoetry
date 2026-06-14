@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { after } from "next/server";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Eye, Heart } from "lucide-react";
+import { Clock, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PoemCard } from "@/components/poem-card";
 import { Fleuron } from "@/components/fleuron";
@@ -105,14 +105,6 @@ export default async function PoemPage({ params }: { params: Params }) {
             <Clock className="mr-1 inline size-3 align-[-2px]" />
             {poem.readingTime} read
           </span>
-          <span className="reading-hide">
-            <Heart className="mr-1 inline size-3 align-[-2px]" />
-            {poem.likes}
-          </span>
-          <span className="reading-hide">
-            <Eye className="mr-1 inline size-3 align-[-2px]" />
-            {poem.views}
-          </span>
         </div>
       </header>
 
@@ -145,6 +137,14 @@ export default async function PoemPage({ params }: { params: Params }) {
         ©PGpoetry ✍
       </p>
 
+      {/* Views — moved below the poem. Likes live on the like button itself. */}
+      <div className="poem-meta reading-hide mt-8 flex items-center justify-center">
+        <span>
+          <Eye className="mr-1 inline size-3 align-[-2px]" />
+          {poem.views}
+        </span>
+      </div>
+
       {/* Tags (kept visible in reading mode — they're part of the poem framing) */}
       {poem.tags.length > 0 ? (
         <div className="reading-hide mt-12 flex flex-wrap justify-center gap-2">
@@ -157,20 +157,24 @@ export default async function PoemPage({ params }: { params: Params }) {
       ) : null}
 
       {/* Engagement + reading mode toggle */}
-      <div className="reading-hide mt-10 flex flex-wrap items-center justify-center gap-2 border-t pt-8">
-        <LikeButton
-          poemId={poem.id}
-          initialLiked={engagement.liked}
-          initialCount={engagement.likeCount}
-        />
-        <FavoriteButton
-          poemId={poem.id}
-          initialFavorited={engagement.favorited}
-          isLoggedIn={Boolean(viewer)}
-        />
-        <ShareButton title={poem.title} url={shareUrl} />
-        <span className="bg-border mx-1 h-5 w-px" />
-        <ReadingModeToggle />
+      <div className="reading-hide mt-10 flex flex-col items-center gap-3 border-t pt-8">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <LikeButton
+            poemId={poem.id}
+            initialLiked={engagement.liked}
+            initialCount={engagement.likeCount}
+          />
+          <span className="bg-border mx-1 h-5 w-px" />
+          <ReadingModeToggle />
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <FavoriteButton
+            poemId={poem.id}
+            initialFavorited={engagement.favorited}
+            isLoggedIn={Boolean(viewer)}
+          />
+          <ShareButton title={poem.title} url={shareUrl} />
+        </div>
       </div>
 
       {/* Comments */}
