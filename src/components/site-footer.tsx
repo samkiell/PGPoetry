@@ -26,7 +26,7 @@ export async function SiteFooter() {
               />
             </div>
             <p className="-ml-1 font-serif text-lg sm:text-xl font-semibold">
-              {env.SITE_NAME}
+              poetry
             </p>
           </div>
           <p className="text-muted-foreground mt-1 text-xs sm:text-sm">

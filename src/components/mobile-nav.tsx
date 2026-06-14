@@ -63,7 +63,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
               />
             </div>
             <span className="-ml-1 font-serif text-lg font-semibold">
-              {SITE_NAME}
+              poetry
             </span>
           </Link>
           <DialogClose asChild>

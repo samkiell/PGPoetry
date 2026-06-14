@@ -6,7 +6,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { NavLinks } from "@/components/nav-links";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
-import { env } from "@/lib/env";
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
@@ -28,9 +27,9 @@ export async function SiteHeader() {
             />
           </div>
           <span className="-ml-2 flex flex-col leading-none">
-            <span className="font-serif text-lg font-semibold">
-              {env.SITE_NAME}
-            </span>
+            {/* Logo already shows the "PG" monogram, so the wordmark is just
+                "poetry". */}
+            <span className="font-serif text-lg font-semibold">poetry</span>
             <span className="text-muted-foreground hidden text-[11px] sm:block">
               Every verse, a priceless gift.
             </span>

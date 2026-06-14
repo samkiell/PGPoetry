@@ -23,7 +23,7 @@ export function AuthShell({
             className="object-contain"
           />
         </div>
-        <span className="-ml-1 font-serif text-xl font-semibold">PGpoetry</span>
+        <span className="-ml-1 font-serif text-xl font-semibold">poetry</span>
       </Link>
 
       <div className="bg-card rounded-xl border p-6 shadow-sm sm:p-8">
