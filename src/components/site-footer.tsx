@@ -16,7 +16,19 @@ export async function SiteFooter() {
     <footer data-site-footer className="border-t">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 grid-cols-2 sm:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
-          <p className="font-serif text-lg sm:text-xl font-semibold">{env.SITE_NAME}</p>
+          <div className="flex items-center">
+            <div className="relative size-12 shrink-0">
+              <Image
+                src="/images/pg_logo.png"
+                alt="PGpoetry Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <p className="-ml-1 font-serif text-lg sm:text-xl font-semibold">
+              {env.SITE_NAME}
+            </p>
+          </div>
           <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
             Every verse, a priceless gift.
           </p>
