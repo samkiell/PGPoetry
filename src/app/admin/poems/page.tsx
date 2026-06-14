@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Star } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { PoemRowActions } from "@/components/admin/poem-row-actions";
 import { PoemStatusSelect } from "@/components/admin/poem-status-select";
+import { PoemFeaturedToggle } from "@/components/admin/poem-featured-toggle";
 import { PoemSearch } from "@/components/admin/poem-search";
 import { getAdminPoems } from "@/lib/data/admin";
 import { formatDate } from "@/lib/utils";
@@ -94,6 +95,9 @@ export default async function AdminPoemsPage({
               <tr>
                 <th className="px-4 py-2.5 font-medium">Title</th>
                 <th className="hidden px-4 py-2.5 font-medium sm:table-cell">
+                  Featured
+                </th>
+                <th className="hidden px-4 py-2.5 font-medium sm:table-cell">
                   Status
                 </th>
                 <th className="hidden px-4 py-2.5 font-medium md:table-cell">
@@ -109,20 +113,30 @@ export default async function AdminPoemsPage({
               {poems.map((poem) => (
                 <tr key={poem.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      {/* Inline featured toggle on mobile (no dedicated col). */}
+                      <span className="sm:hidden">
+                        <PoemFeaturedToggle
+                          poemId={poem.id}
+                          featured={poem.featured}
+                        />
+                      </span>
                       <Link
                         href={`/admin/poems/${poem.id}`}
                         className="font-medium hover:text-primary"
                       >
                         {poem.title}
                       </Link>
-                      {poem.featured ? (
-                        <Star className="size-3.5 fill-primary text-primary" />
-                      ) : null}
                     </div>
                     <div className="mt-1 sm:hidden">
                       <PoemStatusSelect poemId={poem.id} status={poem.status} />
                     </div>
+                  </td>
+                  <td className="hidden px-4 py-3 sm:table-cell">
+                    <PoemFeaturedToggle
+                      poemId={poem.id}
+                      featured={poem.featured}
+                    />
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <PoemStatusSelect poemId={poem.id} status={poem.status} />

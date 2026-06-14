@@ -183,6 +183,30 @@ export async function changePoemStatus(
   return { ok: true, status };
 }
 
+export async function togglePoemFeatured(
+  id: string,
+  featured: boolean,
+): Promise<Result<{ featured: boolean }>> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+  if (!objectId.safeParse(id).success) {
+    return { ok: false, error: "Invalid poem id." };
+  }
+
+  await connectDB();
+  const result = await Poem.findByIdAndUpdate(
+    id,
+    { featured },
+    { new: true, projection: { featured: 1, slug: 1 } },
+  ).lean<{ featured: boolean; slug: string }>();
+  if (!result) return { ok: false, error: "Poem not found." };
+
+  revalidatePath("/admin/poems");
+  revalidatePath(`/poems/${result.slug}`);
+  revalidatePath("/poems");
+  return { ok: true, featured: result.featured };
+}
+
 export async function deletePoem(id: string): Promise<Result> {
   const guard = await ensureAdmin();
   if (!guard.ok) return guard;
