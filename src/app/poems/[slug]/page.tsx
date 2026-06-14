@@ -191,10 +191,14 @@ export default async function PoemPage({ params }: { params: Params }) {
           <h2 className="font-serif mb-8 text-center text-xl font-medium tracking-tight">
             More like this
           </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((p) => (
-              <PoemCard key={p.id} poem={p} />
-            ))}
+          {/* Break out of the article's max-w-2xl on large screens (bounded so
+              it never causes horizontal overflow) so the cards get more room. */}
+          <div className="xl:-mx-60 xl:max-w-6xl">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+              {related.map((p) => (
+                <PoemCard key={p.id} poem={p} />
+              ))}
+            </div>
           </div>
         </section>
       ) : null}
