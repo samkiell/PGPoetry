@@ -42,7 +42,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 
       <DialogContent
         showClose={false}
-        className="top-0 right-0 left-auto h-dvh max-w-full translate-x-0 translate-y-0 gap-0 rounded-none border-0 border-l p-0 shadow-xl sm:max-w-xs data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
+        className="top-0 right-0 left-auto flex h-dvh max-w-full translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 border-l p-0 shadow-xl sm:max-w-xs data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
       >
         <DialogTitle className="sr-only">Navigation menu</DialogTitle>
 

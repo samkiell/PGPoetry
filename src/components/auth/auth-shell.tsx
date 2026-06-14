@@ -14,16 +14,16 @@ export function AuthShell({
 }) {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-md flex-col justify-center px-4 py-12">
-      <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-        <div className="relative size-10 overflow-hidden rounded-lg border bg-muted">
+      <Link href="/" className="mb-8 flex items-center justify-center">
+        <div className="relative size-12 shrink-0">
           <Image
-            src="/images/Favicon_PGPPen.png"
+            src="/images/pg_logo.png"
             alt="PGpoetry Logo"
             fill
-            className="object-cover"
+            className="object-contain"
           />
         </div>
-        <span className="font-serif text-xl font-semibold">PGpoetry</span>
+        <span className="-ml-1 font-serif text-xl font-semibold">PGpoetry</span>
       </Link>
 
       <div className="bg-card rounded-xl border p-6 shadow-sm sm:p-8">
