@@ -25,11 +25,11 @@ export default async function HomePage() {
       <section className="flex flex-col items-center gap-6 py-20 text-center sm:py-28">
         <RotatingVerse />
         <h1 className="font-serif text-4xl font-semibold leading-tight sm:text-6xl">
-          Every verse, a<br className="hidden sm:block" /> priceless gift.
+          Read it. Feel it.<br className="hidden sm:block" /> Carry it.
         </h1>
         <p className="text-muted-foreground max-w-xl text-lg">
-          A minimalist, emotion-driven space for original poetry. Read it,
-          collect it, and carry the lines that find you.
+          A minimalist, emotion-driven space for original poetry — and the
+          lines that find you when you need them.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">
