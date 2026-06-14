@@ -38,9 +38,10 @@ async function loadFont(family: string, weight: number): Promise<ArrayBuffer> {
 }
 
 /**
- * Renders just the poem — title, verse, and the PG monogram — as a portrait
- * PNG for sharing/downloading. Omits the date and reading time. Honours the
- * current theme via `?theme=light|dark` and uses the site's serif fonts.
+ * Renders the poem as a portrait share card laid out like the OG meta image:
+ * a PG-monogram lockup, the title, the opening lines (flowing, not centered),
+ * and a tagline + tags footer. Top-aligned so long poems read gracefully.
+ * Honours the theme via `?theme=light|dark` and uses the site's fonts.
  */
 export async function GET(
   req: Request,
@@ -53,43 +54,24 @@ export async function GET(
   const themeParam = new URL(req.url).searchParams.get("theme");
   const t = themeParam === "light" ? THEMES.light : THEMES.dark;
 
-  const lines = stripEmoji(htmlToPlainText(poemContentToHtml(poem.content)))
+  const title = stripEmoji(poem.title);
+  // Opening lines, joined into a flowing excerpt that wraps naturally. Capped
+  // so even a very long poem never overflows the card.
+  const excerpt = stripEmoji(htmlToPlainText(poemContentToHtml(poem.content)))
     .split("\n")
     .map((l) => l.trim())
-    .filter(Boolean);
-  const title = stripEmoji(poem.title);
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 360);
 
-  // Match the site exactly: Playfair Display for the title (font-serif),
-  // Inter @400 for the verse (.poem-content), and Noto Sans Symbols 2 for the
-  // ❦ floral-heart ornament (the other fonts don't include that glyph, so it
-  // would render as tofu otherwise).
-  const [logoData, playfair, inter, symbols] = await Promise.all([
+  const [logoData, playfair, inter] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "images", "pg_logo.png")),
     loadFont("Playfair+Display", 600),
     loadFont("Inter", 400),
-    loadFont("Noto+Sans+Symbols+2", 400),
   ]);
   const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
-
-  // Scale the verse down a touch when a poem runs long so it still fits.
-  const verseSize = lines.length > 16 ? 34 : lines.length > 10 ? 40 : 46;
-
-  const fleuron = (
-    <div style={{ display: "flex", alignItems: "center", gap: 24, margin: "56px 0" }}>
-      <div style={{ width: 70, height: 1, background: t.rule }} />
-      <div
-        style={{
-          color: t.accent,
-          fontSize: 30,
-          fontFamily: "Noto Sans Symbols 2",
-          lineHeight: 1,
-        }}
-      >
-        ❦
-      </div>
-      <div style={{ width: 70, height: 1, background: t.rule }} />
-    </div>
-  );
 
   return new ImageResponse(
     (
@@ -99,51 +81,70 @@ export async function GET(
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: t.bg,
-          padding: "90px 80px",
+          justifyContent: "space-between",
+          background: `linear-gradient(150deg, ${t.bg} 0%, ${t.rule}22 100%)`,
+          padding: "84px 80px",
         }}
       >
-        <div
-          style={{
-            color: t.fg,
-            fontSize: 84,
-            fontFamily: "Playfair Display",
-            lineHeight: 1.1,
-            textAlign: "center",
-            maxWidth: "100%",
-          }}
-        >
-          {title}
+        {/* Brand lockup */}
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoSrc} width={72} height={72} alt="" />
+          <span
+            style={{
+              color: t.accent,
+              fontSize: 28,
+              letterSpacing: 10,
+              textTransform: "uppercase",
+              fontFamily: "Inter",
+              fontWeight: 700,
+            }}
+          >
+            poetry
+          </span>
         </div>
 
-        {fleuron}
+        {/* Title + opening lines */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          <div
+            style={{
+              color: t.fg,
+              fontSize: 80,
+              fontFamily: "Playfair Display",
+              lineHeight: 1.08,
+            }}
+          >
+            {title}
+          </div>
+          <div
+            style={{
+              color: t.muted,
+              fontSize: 38,
+              fontFamily: "Inter",
+              lineHeight: 1.5,
+            }}
+          >
+            {excerpt}
+          </div>
+        </div>
 
+        {/* Footer: tagline + tags */}
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: Math.round(verseSize * 0.45),
-            color: t.muted,
-            fontSize: verseSize,
             fontFamily: "Inter",
-            lineHeight: 1.45,
-            textAlign: "center",
+            fontSize: 26,
           }}
         >
-          {lines.map((line, i) => (
-            <div key={i} style={{ display: "flex" }}>
-              {line}
-            </div>
-          ))}
+          <span style={{ color: t.muted }}>Every verse, a priceless gift.</span>
+          {poem.tags.length ? (
+            <span style={{ color: t.accent }}>
+              {poem.tags.slice(0, 3).map((tag) => `#${tag}`).join("  ")}
+            </span>
+          ) : null}
         </div>
-
-        {fleuron}
-
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoSrc} width={84} height={84} alt="PGpoetry" />
       </div>
     ),
     {
@@ -152,7 +153,6 @@ export async function GET(
       fonts: [
         { name: "Playfair Display", data: playfair, weight: 600, style: "normal" },
         { name: "Inter", data: inter, weight: 400, style: "normal" },
-        { name: "Noto Sans Symbols 2", data: symbols, weight: 400, style: "normal" },
       ],
     },
   );
