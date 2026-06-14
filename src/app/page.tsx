@@ -22,7 +22,7 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero */}
-      <section className="flex flex-col items-center gap-6 py-20 text-center sm:py-28">
+      <section className="flex flex-col items-center gap-6 pb-12 pt-10 text-center sm:pb-16 sm:pt-16">
         <RotatingVerse />
         <h1 className="font-serif text-4xl font-semibold leading-tight sm:text-6xl">
           Read it. Feel it.<br className="hidden sm:block" /> Carry it.
