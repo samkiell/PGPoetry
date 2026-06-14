@@ -59,10 +59,12 @@ export async function GET(
     .filter(Boolean);
   const title = stripEmoji(poem.title);
 
+  // Match the site exactly: Playfair Display for the title (font-serif),
+  // Cormorant @400 for the verse (.poem-content / --font-cormorant-gould).
   const [logoData, playfair, cormorant] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "images", "pg_logo.png")),
     loadFont("Playfair+Display", 600),
-    loadFont("Cormorant+Garamond", 500),
+    loadFont("Cormorant", 400),
   ]);
   const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
 
@@ -114,7 +116,7 @@ export async function GET(
             gap: Math.round(verseSize * 0.45),
             color: t.muted,
             fontSize: verseSize,
-            fontFamily: "Cormorant Garamond",
+            fontFamily: "Cormorant",
             lineHeight: 1.35,
             textAlign: "center",
           }}
@@ -137,7 +139,7 @@ export async function GET(
       height: HEIGHT,
       fonts: [
         { name: "Playfair Display", data: playfair, weight: 600, style: "normal" },
-        { name: "Cormorant Garamond", data: cormorant, weight: 500, style: "normal" },
+        { name: "Cormorant", data: cormorant, weight: 400, style: "normal" },
       ],
     },
   );
