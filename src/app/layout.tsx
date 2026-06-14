@@ -3,6 +3,7 @@ import { Playfair_Display, Source_Sans_3, Cormorant_Garamond, Cormorant } from "
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/lib/env";
 import "./globals.css";
@@ -73,6 +74,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <SmoothScroll />
           <div className="flex min-h-dvh flex-col">
             <SiteHeader />
             <main className="flex-1">{children}</main>
