@@ -88,6 +88,9 @@ poemSchema.pre("save", function () {
 
 poemSchema.index({ status: 1, publishedAt: -1 });
 poemSchema.index({ tags: 1 });
+// Full-text search over title + content (title weighted higher). Lets the
+// public search hit an index instead of an unanchored regex collection scan.
+poemSchema.index({ title: "text", content: "text" }, { weights: { title: 3, content: 1 } });
 
 export const Poem: Model<PoemDoc> =
   (models.Poem as Model<PoemDoc>) || model<PoemDoc>("Poem", poemSchema);

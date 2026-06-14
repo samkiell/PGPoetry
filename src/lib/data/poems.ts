@@ -32,6 +32,23 @@ function populatedCollection(
     : null;
 }
 
+/**
+ * Coerces a value to an ISO string, falling back to the ObjectId's embedded
+ * creation time when the value is missing or unparseable. Poems written through
+ * Mongoose always carry timestamps, but seeded/imported docs may not —
+ * `new Date(undefined).toISOString()` would otherwise throw `Invalid time
+ * value` and 500 the page.
+ */
+function toISO(value: unknown, id: LeanPoem["_id"]): string {
+  if (value) {
+    const date = new Date(value as string | number | Date);
+    if (!Number.isNaN(date.getTime())) return date.toISOString();
+  }
+  return new Date(
+    parseInt(String(id).substring(0, 8), 16) * 1000,
+  ).toISOString();
+}
+
 function toListItem(doc: LeanPoem): PoemListItem {
   const plain = htmlToPlainText(doc.content);
   const { text, truncated } = excerpt(plain);
@@ -70,7 +87,7 @@ function toDetail(doc: LeanPoem): PoemDetail {
     wordCount: wordCount(plain),
     readingTime: formatReadingTime(content),
     publishedAt: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
-    createdAt: new Date(doc.createdAt).toISOString(),
+    createdAt: toISO(doc.createdAt, doc._id),
     collection: populatedCollection(doc.collectionId),
   };
 }
@@ -97,8 +114,14 @@ export async function getPublishedPoems(
   const filter: QueryFilter<PoemDoc> = { ...PUBLISHED };
 
   if (opts.q?.trim()) {
-    const rx = new RegExp(escapeRegExp(opts.q.trim()), "i");
-    filter.$or = [{ title: rx }, { content: rx }, { tags: rx }];
+    // Indexed full-text search (title + content). Falls back to a tag regex via
+    // $or so a query that only matches a tag — which the text index doesn't
+    // cover — still surfaces results.
+    const q = opts.q.trim();
+    filter.$or = [
+      { $text: { $search: q } },
+      { tags: new RegExp(escapeRegExp(q), "i") },
+    ];
   }
   if (opts.tag?.trim()) {
     filter.tags = opts.tag.trim().toLowerCase();
@@ -166,7 +189,7 @@ export async function getPoemBySlug(slug: string): Promise<PoemDetail | null> {
   return doc ? toDetail(doc) : null;
 }
 
-/** Fire-and-forget view counter — call from the poem page after render. */
+/** View counter — call from `after()` so it runs once the response is sent. */
 export async function incrementPoemViews(id: string): Promise<void> {
   await connectDB();
   await Poem.updateOne({ _id: id }, { $inc: { views: 1 } });
