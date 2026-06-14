@@ -129,3 +129,21 @@ export async function registerUser(
 
   return { ok: true, userId: user._id.toString() };
 }
+
+/**
+ * Sets a new password for the account with the given email. Returns false if no
+ * such account exists. Caller is responsible for having verified the reset
+ * code/token first.
+ */
+export async function updatePassword(
+  email: string,
+  newPassword: string,
+): Promise<boolean> {
+  await connectDB();
+  const hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  const result = await User.updateOne(
+    { email: email.toLowerCase().trim() },
+    { $set: { password: hash } },
+  );
+  return result.matchedCount > 0;
+}
