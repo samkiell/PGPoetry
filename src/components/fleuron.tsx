@@ -10,13 +10,13 @@ export function Fleuron({ className }: { className?: string }) {
       role="presentation"
       aria-hidden
       className={cn(
-        "my-10 flex items-center justify-center gap-4 text-muted-foreground",
+        "my-10 flex items-center justify-center gap-5 text-muted-foreground",
         className,
       )}
     >
-      <span className="bg-border h-px w-14" />
-      <span className="font-serif text-lg leading-none text-primary">❦</span>
-      <span className="bg-border h-px w-14" />
+      <span className="bg-border/60 h-px w-10" />
+      <span className="text-primary/70 font-serif text-base leading-none">❦</span>
+      <span className="bg-border/60 h-px w-10" />
     </div>
   );
 }

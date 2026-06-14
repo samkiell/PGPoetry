@@ -132,14 +132,20 @@ export default async function PoemPage({ params }: { params: Params }) {
 
       <Fleuron className="my-6" />
 
-      {/* Signature */}
-      <p className="text-muted-foreground text-center font-serif text-sm italic">
-        ©PGpoetry ✍
-      </p>
+      {/* Signature — the PG monogram marks the poem as PGpoetry's. */}
+      <div className="flex justify-center">
+        <Image
+          src="/images/pg_logo.png"
+          alt="PGpoetry"
+          width={36}
+          height={36}
+          className="size-9 opacity-90"
+        />
+      </div>
 
       {/* Tags (kept visible in reading mode — they're part of the poem framing) */}
       {poem.tags.length > 0 ? (
-        <div className="reading-hide mt-6 flex flex-wrap justify-center gap-2">
+        <div className="reading-hide mt-6 flex flex-wrap justify-start gap-2">
           {poem.tags.map((tag) => (
             <Badge key={tag} variant="secondary" asChild>
               <Link href={`/poems?tag=${encodeURIComponent(tag)}`}>{tag}</Link>

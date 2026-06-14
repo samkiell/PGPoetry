@@ -140,9 +140,15 @@ html.lenis body {
 .poem-content {
   font-family: var(--font-cormorant-gould), var(--font-serif);
   font-size: 1.25rem;
-  line-height: 1.85;
+  /* Tighter than prose: in verse the line is the unit, so keep stanzas
+     cohesive rather than spaced out like a list. */
+  line-height: 1.65;
   letter-spacing: 0.01em;
-  font-weight: 300;
+  /* Weight 400 reads solid on the dark background; 300 looked thin. */
+  font-weight: 400;
+  /* Centre the verse block so it sits symmetrically under the centred
+     title, fleurons, and signature. */
+  text-align: center;
 }
 @media (min-width: 640px) {
   .poem-content {
@@ -159,6 +165,8 @@ html.lenis body {
   border-left: 3px solid var(--primary);
   padding-left: 1rem;
   font-style: italic;
+  /* The left rule reads wrong when centred — keep quotes left-aligned. */
+  text-align: left;
 }
 .poem-content h2,
 .poem-content h3 {
