@@ -144,20 +144,6 @@ export default async function PoemPage({ params }: { params: Params }) {
         </div>
       </header>
 
-      {/* Cover image */}
-      {poem.coverImage ? (
-        <div className="relative mx-auto mt-12 aspect-video w-full max-w-xl overflow-hidden rounded-md">
-          <Image
-            src={poem.coverImage}
-            alt={poem.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 640px"
-            className="object-cover"
-            priority
-          />
-        </div>
-      ) : null}
-
       <Fleuron />
 
       {/* The poem itself */}

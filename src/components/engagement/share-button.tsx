@@ -33,6 +33,9 @@ export function ShareButton({
   const [copied, setCopied] = React.useState(false);
   const [busy, setBusy] = React.useState<null | "share" | "download">(null);
 
+  // Downloaded/shared image filename, branded with a _pgpoetry suffix.
+  const fileName = `${slug}_pgpoetry.png`;
+
   // The message body that should ride along with every share.
   const shareText = `${title} — PGpoetry`;
   const encodedText = encodeURIComponent(shareText);
@@ -98,7 +101,7 @@ export function ShareButton({
     setBusy("share");
     try {
       const blob = await fetchImage();
-      const file = new File([blob], `${slug}.png`, { type: "image/png" });
+      const file = new File([blob], fileName, { type: "image/png" });
       if (
         typeof navigator !== "undefined" &&
         navigator.canShare?.({ files: [file] })
@@ -134,7 +137,7 @@ export function ShareButton({
     const objectUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = objectUrl;
-    a.download = `${slug}.png`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     a.remove();
