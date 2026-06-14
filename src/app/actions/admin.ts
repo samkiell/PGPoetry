@@ -411,3 +411,28 @@ export async function removeUser(userId: string): Promise<Result> {
   revalidatePath("/admin/users");
   return { ok: true };
 }
+
+/* ------------------------------ Comments --------------------------------- */
+
+export async function deleteCommentAsAdmin(commentId: string): Promise<Result> {
+  const guard = await ensureAdmin();
+  if (!guard.ok) return guard;
+  if (!objectId.safeParse(commentId).success) {
+    return { ok: false, error: "Invalid comment id." };
+  }
+
+  await connectDB();
+  const comment = await Comment.findById(commentId).populate("poem", "slug");
+  if (!comment) return { ok: false, error: "Comment not found." };
+
+  const slug =
+    comment.poem && typeof comment.poem === "object" && "slug" in comment.poem
+      ? (comment.poem as { slug: string }).slug
+      : null;
+
+  await comment.deleteOne();
+
+  revalidatePath("/admin/comments");
+  if (slug) revalidatePath(`/poems/${slug}`);
+  return { ok: true };
+}

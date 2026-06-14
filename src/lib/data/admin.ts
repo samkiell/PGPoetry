@@ -438,3 +438,50 @@ export async function deleteUser(userId: string): Promise<boolean> {
   ]);
   return true;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Comments — admin moderation                                               */
+/* -------------------------------------------------------------------------- */
+
+export interface AdminCommentRow {
+  id: string;
+  text: string;
+  authorName: string;
+  createdAt: string;
+  poem: { title: string; slug: string } | null;
+}
+
+type LeanAdminComment = {
+  _id: unknown;
+  text: string;
+  authorName: string;
+  author?: { name?: string; username?: string } | null;
+  createdAt: Date;
+  poem?: { title: string; slug: string } | null;
+};
+
+/** Most recent comments across all poems, for moderation. */
+export async function getAllComments(limit = 100): Promise<AdminCommentRow[]> {
+  await connectDB();
+  const docs = await Comment.find()
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate("author", "name username")
+    .populate("poem", "title slug")
+    .lean<LeanAdminComment[]>();
+
+  return docs.map((doc) => {
+    const author =
+      doc.author && typeof doc.author === "object" ? doc.author : null;
+    return {
+      id: String(doc._id),
+      text: doc.text,
+      authorName: author?.name || author?.username || doc.authorName || "Anonymous",
+      createdAt: new Date(doc.createdAt).toISOString(),
+      poem:
+        doc.poem && typeof doc.poem === "object" && "slug" in doc.poem
+          ? { title: doc.poem.title, slug: doc.poem.slug }
+          : null,
+    };
+  });
+}
